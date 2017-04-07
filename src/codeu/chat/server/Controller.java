@@ -31,10 +31,13 @@ public final class Controller implements RawController, BasicController {
 
   private final Model model;
   private final Uuid.Generator uuidGenerator;
+  private MessagePersist msgData = new MessagePersist();
+  
 
   public Controller(Uuid serverId, Model model) {
     this.model = model;
     this.uuidGenerator = new RandomUuidGenerator(serverId, System.currentTimeMillis());
+    msgData.createTable();
   }
 
   @Override
@@ -125,6 +128,9 @@ public final class Controller implements RawController, BasicController {
           name,
           creationTime);
     }
+
+    /* Add user to database */
+    msgData.insertTable(id.toString(), name, creationTime.toString());
 
     return user;
   }
