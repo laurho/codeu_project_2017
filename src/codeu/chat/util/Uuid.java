@@ -163,6 +163,15 @@ public final class Uuid {
     return hash;
   }
 
+
+  //representation of Uuid for database storage
+  public String toDataString() {
+    final StringBuilder build = new StringBuilder();
+    buildString(this, build);
+    return build.substring(1);
+  }
+
+
   // Compute human-readable representation for Uuids
   // Use long internally to avoid negative integers.
   private static String toString(Uuid id) {
@@ -188,7 +197,7 @@ public final class Uuid {
 
   private static Uuid fromString(final Uuid root, String[] tokens, int index) {
 
-    final int id = Integer.parseInt(tokens[index]);
+    final int id = (int)Long.parseLong(tokens[index]);
 
     final Uuid link = new Uuid(root, id);
 

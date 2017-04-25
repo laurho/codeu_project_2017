@@ -37,22 +37,45 @@ public final class Controller implements RawController, BasicController {
   public Controller(Uuid serverId, Model model) {
     this.model = model;
     this.uuidGenerator = new RandomUuidGenerator(serverId, System.currentTimeMillis());
-    msgData.createTable();
+    msgData.createUserTable();
+    msgData.retrieveUser(this);
+    msgData.createConversationTable();
+    msgData.retrieveConversation(this);
+    msgData.createMessageTable();
+    msgData.retrieveMessage(this);
+
   }
 
+  //dabatase only takes values from this newMessage method to only store "new messages" from current time. 
   @Override
   public Message newMessage(Uuid author, Uuid conversation, String body) {
-    return newMessage(createId(), author, conversation, body, Time.now());
+    Uuid newId = createId();
+    Time time = Time.now();
+
+    msgData.insertMessageTable(newId.toDataString(), author.toDataString(), 
+        conversation.toDataString(), body, time.inMs());
+
+    return newMessage(newId, author, conversation, body, time);
   }
 
   @Override
   public User newUser(String name) {
-    return newUser(createId(), name, Time.now());
+
+  Uuid newId = createId();
+  Time time = Time.now();
+
+  msgData.insertUserTable(newId.toDataString(), name, time.inMs());
+
+
+    return newUser(newId, name, time);
   }
 
   @Override
   public Conversation newConversation(String title, Uuid owner) {
-    return newConversation(createId(), title, owner, Time.now());
+    Uuid newId = createId();
+    Time time = Time.now();
+    msgData.insertConversationTable(newId.toDataString(), title, owner.toDataString(), time.inMs());
+    return newConversation(newId, title, owner, time);
   }
 
   @Override
@@ -128,9 +151,6 @@ public final class Controller implements RawController, BasicController {
           name,
           creationTime);
     }
-
-    /* Add user to database */
-    msgData.insertTable(id.toString(), name, creationTime.toString());
 
     return user;
   }
