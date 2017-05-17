@@ -31,19 +31,20 @@ public final class Controller implements RawController, BasicController {
 
   private final Model model;
   private final Uuid.Generator uuidGenerator;
-  private MessagePersist msgData = new MessagePersist();
+  private MessageDatabase msgData = new MessageDatabase();
+  private RetrieveMessageData msgRetrieve;
   
-
   public Controller(Uuid serverId, Model model) {
     this.model = model;
     this.uuidGenerator = new RandomUuidGenerator(serverId, System.currentTimeMillis());
     msgData.createUserTable();
-    msgData.retrieveUser(this);
     msgData.createConversationTable();
-    msgData.retrieveConversation(this);
     msgData.createMessageTable();
-    msgData.retrieveMessage(this);
 
+    msgRetrieve = new RetrieveMessageData(msgData);
+    msgRetrieve.retrieveUser(this);
+    msgRetrieve.retrieveConversation(this);
+    msgRetrieve.retrieveMessage(this);
   }
 
   //dabatase only takes values from this newMessage method to only store "new messages" from current time. 

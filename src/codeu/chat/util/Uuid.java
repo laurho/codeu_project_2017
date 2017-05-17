@@ -197,9 +197,9 @@ public final class Uuid {
 
   private static Uuid fromString(final Uuid root, String[] tokens, int index) {
 
-    final int id = (int)Long.parseLong(tokens[index]);
+    final long id = Long.parseLong(tokens[index]);
 
-    final Uuid link = new Uuid(root, id);
+    final Uuid link = new Uuid(root, (int)(id & 0xFFFFFFFF));
 
     final int nextIndex = index + 1;
 
