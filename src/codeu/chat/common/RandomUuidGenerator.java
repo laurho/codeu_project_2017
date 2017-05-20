@@ -14,9 +14,25 @@
 
 package codeu.chat.common;
 
-public interface ListViewable {
+import java.util.Random;
 
-  // Produce a string for presenting this object within a list.
-  String listView();
+import codeu.chat.util.Uuid;
 
+// Create a new random uuid. Uuids from this generator are random
+// but are not guaranteed to be unique. Checking uniqueness is left
+// to the caller.
+public final class RandomUuidGenerator implements Uuid.Generator {
+
+  private final Uuid commonRoot;
+  private final Random random;
+
+  public RandomUuidGenerator(Uuid root, long seed) {
+    this.commonRoot = root;
+    this.random = new Random(seed);
+  }
+
+  @Override
+  public Uuid make() {
+    return new Uuid(commonRoot, random.nextInt());
+  }
 }

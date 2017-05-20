@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Compiled source #
 ###################
 *.com
@@ -42,3 +43,7 @@ Thumbs.db
 .settings
 .project
 .classpath
+=======
+bin/
+*.log
+>>>>>>> google/summer-2017

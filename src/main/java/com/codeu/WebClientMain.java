@@ -3,7 +3,7 @@ package com.codeu;
 import java.io.IOException;
 import java.util.Scanner;
 
-import codeu.chat.client.angular.WebChat;
+import codeu.chat.client.angular.WeChat;
 import codeu.chat.client.Controller;
 import codeu.chat.client.View;
 import codeu.chat.util.Logger;
@@ -48,7 +48,7 @@ final class WebClientMain {
   public static HttpServer startServer() {
     // create a resource config that scans for JAX-RS resources and providers
     // in this com.codu package
-    final ResourceConfig rc = new ResourceConfig().packages("com.codeu");
+    final ResourceConfig rc = new ResourceConfig().packages("codeu");
 
     // this line allows programs running on other ports to read what is 
     // being sent from here (not good in the real world for cyber safety
@@ -88,7 +88,22 @@ final class WebClientMain {
     // final Scanner input = new Scanner(System.in);
 
 
+    final RemoteAddress address = RemoteAddress.parse(args[0]);
 
+    final ConnectionSource source = new ClientConnectionSource(address.host, address.port);
+    final Controller controller = new Controller(source);
+    final View view = new View(source);
+
+    LOG.info("Creating client...");
+    WeChat weChat = new WeChat(controller, view);
+    // weChat.clientContext = new ClientContext(controller, view);
+    LOG.info("Created client");
+    
+
+    // WeChat.clientContext = new ClientContext(controller, view);
+
+    // WeChat chat = new WeChat();
+    // chat.globalInt = 7;
 
     // Starting server that can be accessed through get and post requests by the web client
     final HttpServer webserver = startServer();
@@ -101,7 +116,7 @@ final class WebClientMain {
 
 
     while(true){
-      
+
     }
 
 

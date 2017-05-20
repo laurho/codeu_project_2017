@@ -1,4 +1,4 @@
-package com.codeu.chat.client.angular;
+package codeu.chat.client.angular;
 
 
 import java.util.Scanner;
@@ -22,6 +22,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import codeu.chat.common.User;
+
 /**
  * Root resource (exposed at "wechat" path)
  * 
@@ -33,13 +35,11 @@ import javax.ws.rs.core.Response;
 public final class WeChat {
     private final static Logger.Log LOG = Logger.newLog(WeChat.class);
 
-    private static final String PROMPT = ">>";
+    // private static final String PROMPT = ">>";
 
     private final static int PAGE_SIZE = 10;
 
-    private boolean alive = true;
-
-    private final ClientContext clientContext;
+    private static boolean alive = true;
 
     private final SecureRandom random = new SecureRandom();
     private static final int ITERATIONS = 10000;
@@ -47,17 +47,31 @@ public final class WeChat {
 
     public static int globalInt = 0;
 
+
+
+    // Needs to be instantiated from WebClientMain.java
+    // It is bad practice for this field to be public, but there currently
+    // seems to be no other way to instantiate this with inputs 
+    // given to the WebClientMain while having something in place for
+    // the reinstantiation of this class that happens every time 
+    // the web client is accessed through GET and POST requests
+    public static ClientContext clientContext;
+
+
+
+
     // Argument-less constructor
     public WeChat(){
-        this.clientContext = null;
+        // this.clientContext = null;
         globalInt = globalInt + 1;
         System.out.println(globalInt);
+        System.out.println(clientContext);
         System.out.println("no arg constructor");
     }
 
-    public WeChat(String name){
-        this.clientContext = null;
-        System.out.println("1 arg constructor");
+    // Constructor - sets up the Chat Application, so that any further instantiations will work properly
+    public WeChat(Controller controller, View view) {
+        this.clientContext = new ClientContext(controller, view);
     }
 
     /**
@@ -72,6 +86,57 @@ public final class WeChat {
     public String getIt() {
         return "This text is being sent from java backend!";
     }
+
+
+    @GET
+    @Path("exit")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String exit() {
+        alive = false;
+        return "exiting app";
+    }
+
+
+    @GET
+    @Path("adduser")
+    @Produces(MediaType.TEXT_PLAIN)
+    // Add a new user.
+    //private void addUser(String name, String password) {
+    public String addUser() {
+        String name = "Bobby" + globalInt; String password = "goat";
+        clientContext.user.addUser(name, password);
+        return "User added!";
+    }
+
+
+    @GET
+    @Path("showallusers")
+    @Produces(MediaType.TEXT_PLAIN)
+    // Add a new user.
+    //private void addUser(String name, String password) {
+    public String showAllUsers() {
+
+        StringBuilder toRet = new StringBuilder();
+
+        clientContext.user.updateUsers();
+        for (User u : clientContext.user.getUsers()) {
+          toRet.append(u.name);
+          toRet.append("/n");
+        }
+
+        // clientContext.user.showAllUsers();
+        return toRet.toString();
+    }
+
+
+
+
+
+
+
+
+
+
 
 }
 
