@@ -134,7 +134,6 @@ public final class WeChat {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
     // Add a new user.
-    //private void addUser(String name, String password) {
 
     // TODO: catch ParseException
     /* TODO: This recieving of String and converting to JSON means that fields 
@@ -152,12 +151,47 @@ public final class WeChat {
 
         clientContext.user.addUser(name, password);
         
+
         JSONObject obj = new JSONObject();
         obj.put("message", "User " + name +" added!" + " with password " + password);
-        System.out.println("User " + name +" added!" + " with password " + password);
+        System.out.println(obj.toJSONString());
         return obj.toJSONString();
+    }
 
-        //return "User " + name +" added!" + " with password " + password;
+
+    @POST
+    @Path("signinuser")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.TEXT_PLAIN)
+    // Sign in a user
+    
+
+    // TODO: catch ParseException
+    /* TODO: This recieving of String and converting to JSON means that fields 
+        with characters like ':','{','}' could cause problems with the parsing 
+        -- need to test to see if this is a problem, and if it is, either start 
+        sending actual JSON, or disallow those specific characters */
+
+
+    public String signInUser(String jsonAsString) throws ParseException {
+        
+        JSONObject jsonObject = stringToJson(jsonAsString);
+        String name = (String) jsonObject.get("username");
+        String password = (String) jsonObject.get("password");
+
+        if (clientContext.user.signInUser(name, password)) {
+            // Successfully signed in
+            JSONObject obj = new JSONObject();
+            obj.put("message", "User " + name +" signed in!");
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
+        } else {
+            // Error while signing in
+            JSONObject obj = new JSONObject();
+            obj.put("error", "User " + name +" was not able to be signed in. Check password?");
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
+        }
     }
 
 

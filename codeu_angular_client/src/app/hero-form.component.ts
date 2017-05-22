@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 
 import { Hero }    from './hero';
 
@@ -16,6 +17,12 @@ import 'rxjs/add/operator/map';
 })
 export class HeroFormComponent {
 
+
+
+
+  topErrorMessage : String = null;
+
+
   powers = ['Really Smart', 'Super Flexible',
             'Super Hot', 'Weather Changer'];
 
@@ -32,29 +39,39 @@ export class HeroFormComponent {
 
   newHero() {
   	this.model = new Hero(42, '', '', '');
+    this.topErrorMessage = null;
   }
 
 
-  constructor (private http: Http) {}
+  constructor (private http: Http, private cd: ChangeDetectorRef) {}
 
-
+  ref = this.cd;
 
   //text = this.getHeroes().subscribe(data => this.text1 = data);;
 
 
 
 
-  signUpUser(): String {
+  private signUpUser(): String {
     // this.http.post('http://localhost:8080/myapp/wechat/adduser', {"name": 'Hobby', "password": "pass"})
     //          .map(this.extractData)
     //          .subscribe(data => console.log(data));
 
-    this.http.post('http://localhost:8080/myapp/wechat/adduser', JSON.stringify({"username": this.model.name, "password": this.model.password }))
+    console.log(this.submitted);
+    console.log(this.http);
+    console.log(this.cd);
+
+
+    let param: any = new Object();
+    param.username = this.model.name;
+    param.password = this.model.password;
+
+    this.http.post('http://localhost:8080/myapp/wechat/adduser', JSON.stringify(param))
              .map(this.extractData)
-             .subscribe(data => console.log(data));
+             .subscribe(this.subscribeData);
 
     // return this.http.get('http://localhost:8080/myapp/wechat/adduser').map(this.extractData);
-    this.submitted = true; 
+    // this.submitted = true; 
 
     return "user created";
 
@@ -64,19 +81,63 @@ export class HeroFormComponent {
 
 
 
-  // getHeroes(): Observable<string> {
-  //   console.log("function called");
 
-  //   return this.http.get('http://localhost:8080/myapp/wechat/testtext')
-  //                   .map(this.extractData);
-  //                   // .catch(this.handleError);
-  // }
-  private extractData(res: Response) {
-    // let body = res.json();
-    // return body.data || { };
+  private signInUser(): String {
+    
+    // TODO: replace param with this.model for cleaner code
 
-    console.log("helloo");
-    return res.text();//["hi"];
+    let param: any = new Object();
+    param.username = this.model.name;
+    param.password = this.model.password;
+
+    this.http.post('http://localhost:8080/myapp/wechat/signinuser', JSON.stringify(param))
+             .map(this.extractData)
+             .subscribe(this.subscribeData);
+
+    return "user created";
+
+
+    // post(url: string, body: any, options?: RequestOptionsArgs) : Observable<Response>
   }
+
+  private extractData(res: Response) {
+    let body = res.json();
+
+    console.log(this.submitted);
+    console.log(this.http);
+    console.log(this.cd);
+
+    console.log(body);
+    
+    return body;
+    
+  }
+
+  private subscribeData(data: any) {
+    console.log(data);
+    console.log("inside subscribe");
+    console.log(data.error != undefined);
+    
+    if (data.error != undefined) {
+      // There is an error message
+      this.topErrorMessage = data.error;
+    } else {
+
+      console.log("inside message");
+
+      this.submitted = true;
+
+    }
+
+    console.log(this.submitted);
+    console.log(this.http);
+    console.log(this.cd);
+
+    this.cd.detectChanges();
+
+    console.log("after ifs");
+
+  }
+
 
 }

@@ -3,7 +3,12 @@
   <div [hidden]="submitted">
 
     <h1>Hero Form</h1>
-    <form (ngSubmit)="signUpUser()" #heroForm="ngForm">
+    <form (ngSubmit)="signInUser()" #heroForm="ngForm">
+
+
+    <div [hidden]="topErrorMessage == null"
+             class="alert alert-danger"> {{topErrorMessage}} </div>
+
 
       {{diagnostic}}
       <div class="form-group">
@@ -47,14 +52,35 @@
         </select>
       </div>
 
-      <button type="submit" class="btn btn-success" [disabled]="!heroForm.form.valid" >Submit</button>
+      <button type="submit" class="btn btn-success" [disabled]="!heroForm.form.valid" >Sign In</button>
 
-      <button type="button" class="btn btn-default" (click)="newHero(); heroForm.reset()">New Hero</button>
+      <button type="button" class="btn btn-default" [disabled]="!heroForm.form.valid" (click)="signUpUser()">Create New Account</button>
+
+      <button type="button" class="btn btn-default" (click)="newHero(); heroForm.reset()">Clear</button>
 
 
     </form>
 
   </div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   <div [hidden]="!submitted">
     <h2>You submitted the following:</h2>
