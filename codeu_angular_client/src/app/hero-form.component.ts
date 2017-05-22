@@ -68,7 +68,20 @@ export class HeroFormComponent {
 
     this.http.post('http://localhost:8080/myapp/wechat/adduser', JSON.stringify(param))
              .map(this.extractData)
-             .subscribe(this.subscribeData);
+             .subscribe(data => {
+                if (data.error != undefined) {
+                  // There was some error
+                  this.topErrorMessage = data.error;
+                } else {
+                  // Successful signup
+                  console.log("inside message");
+
+                  this.submitted = true;
+
+                }
+
+                this.cd.detectChanges();
+              });
 
     // return this.http.get('http://localhost:8080/myapp/wechat/adduser').map(this.extractData);
     // this.submitted = true; 
@@ -92,7 +105,20 @@ export class HeroFormComponent {
 
     this.http.post('http://localhost:8080/myapp/wechat/signinuser', JSON.stringify(param))
              .map(this.extractData)
-             .subscribe(this.subscribeData);
+             .subscribe(data => {
+                if (data.error != undefined) {
+                  // There was some error
+                  this.topErrorMessage = data.error;
+                } else {
+                  // Successful signup
+                  console.log("inside message");
+
+                  this.submitted = true;
+
+                }
+
+                this.cd.detectChanges();
+              });
 
     return "user created";
 
