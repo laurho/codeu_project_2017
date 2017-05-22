@@ -17,10 +17,18 @@ import java.util.Arrays;
 import javax.crypto.spec.PBEKeySpec;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+
+
 
 import codeu.chat.common.User;
 
@@ -97,15 +105,54 @@ public final class WeChat {
     }
 
 
-    @GET
+    // @XmlRootElement
+    // public static class MyJaxBean {
+    //     @XmlElement public String name;
+    //     @XmlElement public String password;
+    // }
+
+
+    // @POST
+    // @Path("adduser")
+    // @Produces(MediaType.TEXT_PLAIN)
+    // @Consumes("application/json")
+    // // Add a new user.
+    // //private void addUser(String name, String password) {
+    // public String addUser(MyJaxBean input) {
+
+    //     // TODO: remove
+    //     System.out.println(input.name + "   " + input.password);
+
+
+    //     //String name1 = "Bobby" + globalInt; String password1 = "goat";
+    //     clientContext.user.addUser(input.name, input.password);
+    //     return "User " + input.name +" added!";
+    // }
+
+
+    @POST
     @Path("adduser")
     @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
     // Add a new user.
     //private void addUser(String name, String password) {
-    public String addUser() {
-        String name = "Bobby" + globalInt; String password = "goat";
+    public String addUser(String input) {
+
+        // TODO: remove
+        System.out.println(input);
+
+        String[] data = input.split("\\|\\|\\|");
+
+        for (String dat : data) {
+            System.out.println(dat);
+        }
+        String name = data[0];
+        String password = data[1];
+
+
+        // String name1 = "Bobby" + globalInt; String password1 = "goat";
         clientContext.user.addUser(name, password);
-        return "User added!";
+        return "User " + name +" added!" + " with password " + password;
     }
 
 
@@ -121,7 +168,7 @@ public final class WeChat {
         clientContext.user.updateUsers();
         for (User u : clientContext.user.getUsers()) {
           toRet.append(u.name);
-          toRet.append("/n");
+          toRet.append("\n");
         }
 
         // clientContext.user.showAllUsers();

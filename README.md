@@ -53,7 +53,7 @@ Quit with 'control - C' in the terminal
 
 # To Build/Run Angular2 Code
 Download Node.js 6.9.x and npm 3.x.x or newer (https://nodejs.org/en/download/)
-In the terminal, navigate to the home directory of the project
+In the terminal, navigate to the home directory of the project (./codeu_angular_client/)
 To run the Angular2 project, run the following in the terminal
   ```
   npm start
