@@ -27,6 +27,10 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 
 
@@ -129,19 +133,67 @@ public final class WeChat {
     //     return "User " + input.name +" added!";
     // }
 
+    // // // WORKING VERSION
+    // @POST
+    // @Path("adduser")
+    // @Produces(MediaType.TEXT_PLAIN)
+    // @Consumes(MediaType.TEXT_PLAIN)
+    // // Add a new user.
+    // //private void addUser(String name, String password) {
+    // public String addUser(String input) {
+
+    //     // TODO: remove
+    //     System.out.println(input);
+
+    //     String[] data = input.split("\\|\\|\\|");
+
+    //     for (String dat : data) {
+    //         System.out.println(dat);
+    //     }
+    //     String name = data[0];
+    //     String password = data[1];
+
+
+    //     // String name1 = "Bobby" + globalInt; String password1 = "goat";
+    //     clientContext.user.addUser(name, password);
+    //     return "User " + name +" added!" + " with password " + password;
+    // }
+
 
     @POST
     @Path("adduser")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
     // Add a new user.
     //private void addUser(String name, String password) {
-    public String addUser(String input) {
 
-        // TODO: remove
-        System.out.println(input);
+    // TODO: catch ParseException
 
-        String[] data = input.split("\\|\\|\\|");
+    public String addUser(String ob) throws ParseException{
+        System.out.println(ob);
+
+        JSONParser parser = new JSONParser();
+        
+        JSONObject jsonObject = (JSONObject) parser.parse(ob);
+        // System.out.println(obje);
+
+        // JSONObject jsonObject = (JSONObject) obje;
+        System.out.println(jsonObject);
+
+
+
+        // String name = "o";
+        // String password = "b";
+
+
+
+        // JSONObject input = (JSONObject) ob;
+
+
+        // // TODO: remove
+        // System.out.println(input);
+
+        String[] data = ((String) jsonObject.get("fields")).split("\\|\\|\\|");
 
         for (String dat : data) {
             System.out.println(dat);
@@ -150,10 +202,67 @@ public final class WeChat {
         String password = data[1];
 
 
-        // String name1 = "Bobby" + globalInt; String password1 = "goat";
+        // // String name1 = "Bobby" + globalInt; String password1 = "goat";
         clientContext.user.addUser(name, password);
-        return "User " + name +" added!" + " with password " + password;
+        
+        JSONObject obj = new JSONObject();
+        obj.put("message", "User " + name +" added!" + " with password " + password);
+        return obj.toJSONString();
+
+        //return "User " + name +" added!" + " with password " + password;
     }
+
+
+
+    // //// example of simple json syntax
+    // JSONObject obj = new JSONObject();
+    // obj.put("name", "mkyong.com");
+    // obj.put("age", new Integer(100));
+
+    // JSONArray list = new JSONArray();
+    // list.add("msg 1");
+    // list.add("msg 2");
+    // list.add("msg 3");
+
+    // obj.put("messages", list);
+
+    // obj.toJSONString();
+
+
+    // JSONParser parser = new JSONParser();
+
+    //     try {
+
+    //         Object obj = parser.parse(new FileReader("f:\\test.json"));
+
+    //         JSONObject jsonObject = (JSONObject) obj;
+    //         System.out.println(jsonObject);
+
+    //         String name = (String) jsonObject.get("name");
+    //         System.out.println(name);
+
+    //         long age = (Long) jsonObject.get("age");
+    //         System.out.println(age);
+
+    //         // loop array
+    //         JSONArray msg = (JSONArray) jsonObject.get("messages");
+    //         Iterator<String> iterator = msg.iterator();
+    //         while (iterator.hasNext()) {
+    //             System.out.println(iterator.next());
+    //         }
+
+    //     } catch (FileNotFoundException e) {
+    //         e.printStackTrace();
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     } catch (ParseException e) {
+    //         e.printStackTrace();
+    //     }
+
+
+
+
+
 
 
     @GET
