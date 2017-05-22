@@ -49,7 +49,7 @@ export class HeroFormComponent {
     //          .map(this.extractData)
     //          .subscribe(data => console.log(data));
 
-    this.http.post('http://localhost:8080/myapp/wechat/adduser', JSON.stringify({"fields": this.model.name + "|||" + this.model.password}))
+    this.http.post('http://localhost:8080/myapp/wechat/adduser', JSON.stringify({"username": this.model.name, "password": this.model.password }))
              .map(this.extractData)
              .subscribe(data => console.log(data));
 

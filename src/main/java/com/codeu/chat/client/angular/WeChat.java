@@ -109,55 +109,24 @@ public final class WeChat {
     }
 
 
-    // @XmlRootElement
-    // public static class MyJaxBean {
-    //     @XmlElement public String name;
-    //     @XmlElement public String password;
-    // }
+
+    /**
+    * Parses a string into JSON
+    * Currently, assumes that the string is formatted as a JSON would be
+    *
+    **/
+    // TODO: Casting is usually bad practice -- look into whether its possible to avoid casting
+    private JSONObject stringToJson(String jsonAsString) throws ParseException {
+        JSONParser parser = new JSONParser();
+
+        Object jsonAsObject = parser.parse(jsonAsString);
+
+        JSONObject jsonAsJSONObject = (JSONObject) jsonAsObject;
+
+        return jsonAsJSONObject;
+    }
 
 
-    // @POST
-    // @Path("adduser")
-    // @Produces(MediaType.TEXT_PLAIN)
-    // @Consumes("application/json")
-    // // Add a new user.
-    // //private void addUser(String name, String password) {
-    // public String addUser(MyJaxBean input) {
-
-    //     // TODO: remove
-    //     System.out.println(input.name + "   " + input.password);
-
-
-    //     //String name1 = "Bobby" + globalInt; String password1 = "goat";
-    //     clientContext.user.addUser(input.name, input.password);
-    //     return "User " + input.name +" added!";
-    // }
-
-    // // // WORKING VERSION
-    // @POST
-    // @Path("adduser")
-    // @Produces(MediaType.TEXT_PLAIN)
-    // @Consumes(MediaType.TEXT_PLAIN)
-    // // Add a new user.
-    // //private void addUser(String name, String password) {
-    // public String addUser(String input) {
-
-    //     // TODO: remove
-    //     System.out.println(input);
-
-    //     String[] data = input.split("\\|\\|\\|");
-
-    //     for (String dat : data) {
-    //         System.out.println(dat);
-    //     }
-    //     String name = data[0];
-    //     String password = data[1];
-
-
-    //     // String name1 = "Bobby" + globalInt; String password1 = "goat";
-    //     clientContext.user.addUser(name, password);
-    //     return "User " + name +" added!" + " with password " + password;
-    // }
 
 
     @POST
@@ -168,45 +137,24 @@ public final class WeChat {
     //private void addUser(String name, String password) {
 
     // TODO: catch ParseException
+    /* TODO: This recieving of String and converting to JSON means that fields 
+        with characters like ':','{','}' could cause problems with the parsing 
+        -- need to test to see if this is a problem, and if it is, either start 
+        sending actual JSON, or disallow those specific characters */
 
-    public String addUser(String ob) throws ParseException{
-        System.out.println(ob);
 
-        JSONParser parser = new JSONParser();
+    public String addUser(String jsonAsString) throws ParseException {
         
-        JSONObject jsonObject = (JSONObject) parser.parse(ob);
-        // System.out.println(obje);
+        JSONObject jsonObject = stringToJson(jsonAsString);
 
-        // JSONObject jsonObject = (JSONObject) obje;
-        System.out.println(jsonObject);
+        String name = (String) jsonObject.get("username");
+        String password = (String) jsonObject.get("password");
 
-
-
-        // String name = "o";
-        // String password = "b";
-
-
-
-        // JSONObject input = (JSONObject) ob;
-
-
-        // // TODO: remove
-        // System.out.println(input);
-
-        String[] data = ((String) jsonObject.get("fields")).split("\\|\\|\\|");
-
-        for (String dat : data) {
-            System.out.println(dat);
-        }
-        String name = data[0];
-        String password = data[1];
-
-
-        // // String name1 = "Bobby" + globalInt; String password1 = "goat";
         clientContext.user.addUser(name, password);
         
         JSONObject obj = new JSONObject();
         obj.put("message", "User " + name +" added!" + " with password " + password);
+        System.out.println("User " + name +" added!" + " with password " + password);
         return obj.toJSONString();
 
         //return "User " + name +" added!" + " with password " + password;
