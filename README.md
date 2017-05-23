@@ -28,11 +28,10 @@ You will want to run the server, and one of the clients below:
 
 
 To run the server, run the following in the terminal 
-(the arguments are '<Team Id> <Team Secret> <Port> <Relay Address (optional)>':
+(the arguments are 'Team Id ; Team Secret ; Port ; Relay Address (optional)':
   ```
   mvn exec:java -Dexec.args="1 1 2000" -Dexec.mainClass="com.codeu.Main"
   ```
-  It should then start running on port specified, with additional resources running on port 8080 (this port number can be changed in the code)
 
 
 To run the web client, run the following in the terminal 
@@ -40,6 +39,7 @@ To run the web client, run the following in the terminal
   ```
   mvn exec:java -Dexec.args="localhost@2000" -Dexec.mainClass="com.codeu.WebClientMain"
   ```
+  It should then start running on port specified, with additional resources running on port 8080 (this port number can be changed programatically, but if it is be sure to also change it in ./codeu_angular_client/src/app/appSettings.ts )
 
 To run the commandline client, run the following in the terminal
 (the arguments are: 'localhost@<Server's Port>'):
