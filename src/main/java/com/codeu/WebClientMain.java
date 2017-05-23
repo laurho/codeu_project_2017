@@ -74,20 +74,6 @@ final class WebClientMain {
 
     LOG.info("Starting chat client...");
 
-    // final RemoteAddress address = RemoteAddress.parse(args[0]);
-
-    // final ConnectionSource source = new ClientConnectionSource(address.host, address.port);
-    // final Controller controller = new Controller(source);
-    // final View view = new View(source);
-
-    // LOG.info("Creating client...");
-    // final WebChat chat = new WebChat(controller, view);
-
-    // LOG.info("Created client");
-
-    // final Scanner input = new Scanner(System.in);
-
-
     final RemoteAddress address = RemoteAddress.parse(args[0]);
 
     final ConnectionSource source = new ClientConnectionSource(address.host, address.port);
@@ -95,37 +81,22 @@ final class WebClientMain {
     final View view = new View(source);
 
     LOG.info("Creating client...");
+
+    // This ensures that the correct controller and view are associated 
+    // with the weChat class in a static way, for the sake of any future instances of the class. 
     WeChat weChat = new WeChat(controller, view);
-    // weChat.clientContext = new ClientContext(controller, view);
     LOG.info("Created client");
     
-
-    // WeChat.clientContext = new ClientContext(controller, view);
-
-    // WeChat chat = new WeChat();
-    // chat.globalInt = 7;
 
     // Starting server that can be accessed through get and post requests by the web client
     final HttpServer webserver = startServer();
     System.out.println(String.format("Jersey app started with WADL available at "
             + "%sapplication.wadl\n", BASE_URI));
-    // Server is not properly closed for now only
-    // System.in.read();
-    // webserver.stop();
+ 
+    // Keep running
+    // while(weChat.chatActive()){
 
-
-
-    while(true){
-
-    }
-
-
-
-    // while (chat.handleCommand(input)) {
-    //   // everything is done in "run"
     // }
-
-    // input.close();
 
     // LOG.info("chat client has exited.");
   }

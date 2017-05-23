@@ -47,8 +47,6 @@ import codeu.chat.common.User;
 public final class WeChat {
     private final static Logger.Log LOG = Logger.newLog(WeChat.class);
 
-    // private static final String PROMPT = ">>";
-
     private final static int PAGE_SIZE = 10;
 
     private static boolean alive = true;
@@ -57,34 +55,51 @@ public final class WeChat {
     private static final int ITERATIONS = 10000;
     private static final int KEY_LENGTH = 256;
 
+    // Needs to be instantiated from WebClientMain.java
+    public static ClientContext clientContext;
+
+    // TODO: Remove
+    // Counter of how many requests have been made overall
     public static int globalInt = 0;
 
 
-
-    // Needs to be instantiated from WebClientMain.java
-    // It is bad practice for this field to be public, but there currently
-    // seems to be no other way to instantiate this with inputs 
-    // given to the WebClientMain while having something in place for
-    // the reinstantiation of this class that happens every time 
-    // the web client is accessed through GET and POST requests
-    public static ClientContext clientContext;
-
-
-
-
-    // Argument-less constructor
+    /** This argument-less constructor will be called everytime an http request 
+     * is made to a method in this class. It is imperative that the 2-argument 
+     * constructor is called at some point prior to any http requests being made,
+     * because otherwise the static clientContext will never have been instantiated
+     */
     public WeChat(){
-        // this.clientContext = null;
+        
+        if (this.clientContext == null) {
+            System.out.println("ERROR: No clientContext has been instantiated. "
+                + "Please call the 2-argument constructor before any other use "
+                + "of this class to avoid errors");
+        }
+
+        // TODO: remove when not needed for debugging
         globalInt = globalInt + 1;
         System.out.println(globalInt);
         System.out.println(clientContext);
-        System.out.println("no arg constructor");
+        System.out.println("zero arg constructor called");
     }
 
-    // Constructor - sets up the Chat Application, so that any further instantiations will work properly
+    /** Constructor that sets up a static clientContext 
+     *  that will be used by any subsequent intantiations or uses of this class
+     *  controller - a new Controller
+     *  view - a new View
+     */
     public WeChat(Controller controller, View view) {
         this.clientContext = new ClientContext(controller, view);
     }
+
+
+    /**
+    * @return true if the chat is still active, false if it is not
+    */
+    public boolean chatActive() {
+        return this.alive;
+    }
+
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
@@ -100,6 +115,11 @@ public final class WeChat {
     }
 
 
+    /**
+     * Method handling HTTP GET request to exit the chat (?).
+     * 
+     * @return String notifying client of completion.
+     */
     @GET
     @Path("exit")
     @Produces(MediaType.TEXT_PLAIN)
@@ -111,10 +131,12 @@ public final class WeChat {
 
 
     /**
-    * Parses a string into JSON
-    * Currently, assumes that the string is formatted as a JSON would be
-    *
-    **/
+     * Parses a string into JSON
+     * Currently, assumes that the string is formatted as a JSON would be
+     * jsonAsString - a string in json format to parse
+     * @return the JSONObject resulting from parsing jsonAsString
+     * @throws ParseException
+     */
     // TODO: Casting is usually bad practice -- look into whether its possible to avoid casting
     private JSONObject stringToJson(String jsonAsString) throws ParseException {
         JSONParser parser = new JSONParser();
@@ -129,66 +151,86 @@ public final class WeChat {
 
 
 
+
+    /**
+     * Creates a new user account
+     * jsonAsString - a string in json format with 'username' and 'password' fields 
+     * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
+     */
+    // TODO: catch ParseException
+    /* TODO: This recieving of String and converting to JSON means that fields 
+        with characters like ':','{','}' could cause problems with the parsing 
+        -- need to test to see if this is a problem, and if it is, either start 
+        sending actual JSON, or disallow those specific characters */
+    // TODO: check if user already exists?
+    // TODO: test and modify to handle jsonAsString with wrong json fields without crashing
     @POST
     @Path("adduser")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
     // Add a new user.
+    public String addUser(String jsonAsString) {
+        try {
 
+            JSONObject jsonObject = stringToJson(jsonAsString);
+            String name = (String) jsonObject.get("username");
+            String password = (String) jsonObject.get("password");
+
+            clientContext.user.addUser(name, password);
+            
+            JSONObject obj = new JSONObject();
+            obj.put("message", "Account " + name +" was successfully created! Please sign in to confirm and start chatting!");
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+
+            JSONObject obj = new JSONObject();
+            obj.put("error", "There was some problem in processing the contents of your request. Try again with different answers, or contact the administrator.");
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
+        }
+    }
+
+
+    /**
+     * Signs into a user account
+     * jsonAsString - a string in json format with 'username' and 'password' fields 
+     * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
+     */
     // TODO: catch ParseException
     /* TODO: This recieving of String and converting to JSON means that fields 
         with characters like ':','{','}' could cause problems with the parsing 
         -- need to test to see if this is a problem, and if it is, either start 
         sending actual JSON, or disallow those specific characters */
-
-
-    public String addUser(String jsonAsString) throws ParseException {
-        
-        JSONObject jsonObject = stringToJson(jsonAsString);
-
-        String name = (String) jsonObject.get("username");
-        String password = (String) jsonObject.get("password");
-
-        clientContext.user.addUser(name, password);
-        
-
-        JSONObject obj = new JSONObject();
-        obj.put("message", "User " + name +" added!" + " with password " + password);
-        System.out.println(obj.toJSONString());
-        return obj.toJSONString();
-    }
-
-
     @POST
     @Path("signinuser")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    // Sign in a user
-    
+    public String signInUser(String jsonAsString) {
+        try {
+            JSONObject jsonObject = stringToJson(jsonAsString);
+            String name = (String) jsonObject.get("username");
+            String password = (String) jsonObject.get("password");
 
-    // TODO: catch ParseException
-    /* TODO: This recieving of String and converting to JSON means that fields 
-        with characters like ':','{','}' could cause problems with the parsing 
-        -- need to test to see if this is a problem, and if it is, either start 
-        sending actual JSON, or disallow those specific characters */
-
-
-    public String signInUser(String jsonAsString) throws ParseException {
-        
-        JSONObject jsonObject = stringToJson(jsonAsString);
-        String name = (String) jsonObject.get("username");
-        String password = (String) jsonObject.get("password");
-
-        if (clientContext.user.signInUser(name, password)) {
-            // Successfully signed in
             JSONObject obj = new JSONObject();
-            obj.put("message", "User " + name +" signed in!");
+            if (clientContext.user.signInUser(name, password)) {
+                // Successfully signed in
+                obj.put("message", "User " + name +" signed in!");
+            } else {
+                // Error while signing in
+                obj.put("error", "Signing into " + name +" was unsuccessful... \n Recheck the username and password, or create a new account");
+            }
+
             System.out.println(obj.toJSONString());
             return obj.toJSONString();
-        } else {
-            // Error while signing in
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+
             JSONObject obj = new JSONObject();
-            obj.put("error", "User " + name +" was not able to be signed in. Check password?");
+            obj.put("error", "There was some problem in processing the contents of your request. Try again with different answers, or contact the administrator.");
             System.out.println(obj.toJSONString());
             return obj.toJSONString();
         }
@@ -196,7 +238,29 @@ public final class WeChat {
 
 
 
-    // //// example of simple json syntax
+    /**
+     * Shows all the availiable users
+     * @return String such that each user's username is on a new line
+     */
+    @GET
+    @Path("showallusers")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String showAllUsers() {
+        StringBuilder toRet = new StringBuilder();
+
+        clientContext.user.updateUsers();
+        for (User u : clientContext.user.getUsers()) {
+          toRet.append(u.name);
+          toRet.append("\n");
+        }
+
+        return toRet.toString();
+    }
+
+
+
+
+    // //// TODO: remove example of simple json syntax after done
     // JSONObject obj = new JSONObject();
     // obj.put("name", "mkyong.com");
     // obj.put("age", new Integer(100));
@@ -246,26 +310,7 @@ public final class WeChat {
 
 
 
-
-    @GET
-    @Path("showallusers")
-    @Produces(MediaType.TEXT_PLAIN)
-    // Add a new user.
-    //private void addUser(String name, String password) {
-    public String showAllUsers() {
-
-        StringBuilder toRet = new StringBuilder();
-
-        clientContext.user.updateUsers();
-        for (User u : clientContext.user.getUsers()) {
-          toRet.append(u.name);
-          toRet.append("\n");
-        }
-
-        // clientContext.user.showAllUsers();
-        return toRet.toString();
-    }
-
+    
 
 
 

@@ -14,7 +14,7 @@ import { HeroDetailComponent } from './hero-detail.component';
 import { HeroesComponent } from './heroes.component';
 import { HeroService }         from './hero.service';
 import { DashboardComponent } from './dashboard.component';
-import { HeroFormComponent } from './hero-form.component';
+import { LoginFormComponent } from './login-form.component';
 
 import { AppRoutingModule }     from './app-routing.module';
 
@@ -31,7 +31,7 @@ import { AppRoutingModule }     from './app-routing.module';
   	DashboardComponent,
   	HeroDetailComponent,
   	HeroesComponent,
-    HeroFormComponent
+    LoginFormComponent
   ],
   providers: [
   	HeroService

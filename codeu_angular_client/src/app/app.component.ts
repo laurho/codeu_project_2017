@@ -18,11 +18,11 @@ import 'rxjs/add/operator/map';
 @Component({
   selector: 'my-app',
   template: `
-  	<h1>{{text1}}</h1>
+    <br><br><br>
+    <login-form></login-form>
 
-
-    <hero-form></hero-form>
-
+    <br><br><br><br><br><br>
+    <h1>{{text1}}</h1>
 
     <input #usrnm placeholder="User Name" />
     <input #pswd placeholder="Password" type="password" />

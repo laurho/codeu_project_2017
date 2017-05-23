@@ -1,0 +1,87 @@
+<div class="container">
+    
+  <div [hidden]="submitted">
+
+    <h1>Login</h1>
+    <form (ngSubmit)="signInUser(); clearForm(); loginForm.reset()" #loginForm="ngForm">
+
+
+    <div [hidden]="topSuccessMessage == null"
+             class="alert alert-success"> {{topSuccessMessage}} </div>
+
+    <div [hidden]="topErrorMessage == null"
+             class="alert alert-danger"> {{topErrorMessage}} </div>
+
+      
+      <div class="form-group">
+        <label for="name">Username</label>
+        <input type="text" class="form-control" id="name" required [(ngModel)]="model.username" name="name" #name="ngModel">
+
+        <div [hidden]="name.valid || name.pristine"
+             class="alert alert-danger"> Username is required </div>
+
+        <!-- TODO: check if username is unique -->
+
+      </div>
+
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" required [(ngModel)]="model.password" name="password" #password="ngModel">
+
+        <div [hidden]="model.password == null || model.password.length > 2 || model.password.length == 0"
+             class="alert alert-danger"> Password must be more than 2 characters long </div>
+
+        <div [hidden]="password.valid || password.pristine"
+             class="alert alert-danger"> Password is required </div>
+
+      </div>
+
+
+
+      TODO: remove this: <br>
+      {{model.username}}
+      <br>{{model.password == null}}
+      <br> {{diagnostic}}
+      <br><br>
+      
+
+      <button type="submit" class="btn btn-success" [disabled]="!loginForm.form.valid" >Sign In</button>
+
+      <button type="button" class="btn btn-default" [disabled]="!loginForm.form.valid" (click)="signUpUser()">Create New Account</button>
+
+      <button type="button" class="btn btn-default" (click)="clearForm(); loginForm.reset()">Clear</button>
+
+
+    </form>
+
+  </div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div [hidden]="!submitted">
+    <h2>Messages and chatting will go here!</h2>
+    
+    <br>
+    <button class="btn btn-primary" (click)="submitted=false">Log Out</button>
+  </div>
+
+
+</div>
