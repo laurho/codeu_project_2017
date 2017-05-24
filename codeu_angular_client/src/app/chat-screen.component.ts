@@ -106,7 +106,16 @@ export class ChatScreenComponent {
   }
 
 
+  private sendMsg(msgContents: String) {
+    console.log(msgContents);
 
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/sendmsg', msgContents)
+             .map(this.extractData)
+             .subscribe(data => {
+                console.log(data);
+                this.retrieveAllCurrentMessages();
+              });
+  }
 
 
   // private init() {

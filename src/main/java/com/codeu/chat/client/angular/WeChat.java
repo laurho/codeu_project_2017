@@ -412,7 +412,59 @@ public final class WeChat {
     }
 
 
+    /**
+     * 
+     * 
+     */
+    @POST
+    @Path("sendmsg")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.TEXT_PLAIN)
+    public String sendMsg(String msgToSend) {
 
+        System.out.println("inside sendMsg");
+        
+
+        if (!clientContext.user.hasCurrent()) {
+            System.out.println("ERROR: Not signed in.");
+        } else if (!clientContext.conversation.hasCurrent()) {
+            System.out.println("ERROR: No conversation selected.");
+        } else {
+                clientContext.message.addMessage(clientContext.user.getCurrent().id,
+                clientContext.conversation.getCurrentId(), msgToSend);
+
+                JSONObject obj = new JSONObject();
+                obj.put("message", "Sent!");
+                return obj.toJSONString();
+        }
+
+        JSONObject obj = new JSONObject();
+        obj.put("error", "error");
+        return obj.toJSONString();
+
+
+
+    }
+
+
+
+// } else if (token.equals("m-add")) {
+
+//       if (!clientContext.user.hasCurrent()) {
+//         System.out.println("ERROR: Not signed in.");
+//       } else if (!clientContext.conversation.hasCurrent()) {
+//         System.out.println("ERROR: No conversation selected.");
+//       } else {
+//         if (!tokenScanner.hasNext()) {
+//           System.out.println("ERROR: Message body not supplied.");
+//         } else {
+//           clientContext.message.addMessage(clientContext.user.getCurrent().id,
+//               clientContext.conversation.getCurrentId(),
+//               tokenScanner.nextLine().trim());
+//         }
+//       }
+
+//     }
 
 // value.id);
 //       Uuid.SERIALIZER.write(out, value.next);

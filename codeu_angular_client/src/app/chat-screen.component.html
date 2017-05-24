@@ -6,6 +6,9 @@ hello :)
 <h3> Messages: </h3>
 <div *ngFor="let msg of allMsgs" >{{msg.content}}</div>
 
+<input type="text" id="msg" name="name" #msgContent >
+<button type="button" class="btn btn-default" 
+	(click)="sendMsg(msgContent.value); msgContent.value = '';">Send</button>
 
 <!-- <button type="button" class="btn btn-default" (click)="retrieveAllConvos()">Refresh</button>
  -->
