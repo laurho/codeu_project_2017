@@ -1,4 +1,4 @@
-hello :)
+hello :) Please excuse the appearance of this UI for now -- That will be cleaned up soon! <br>
 
 <input type="text" id="convotitle" name="convotitle" #convoTitle >
 <button type="button" class="btn btn-default" 
@@ -23,8 +23,8 @@ hello :)
 <button type="button" class="btn btn-default" 
 	(click)="sendMsg(msgContent.value); msgContent.value = '';">Send</button>
 
-<!-- <button type="button" class="btn btn-default" (click)="retrieveAllConvos()">Refresh</button>
- -->
+<button type="button" class="btn btn-default" (click)="retrieveAllConvos(); retrieveAllCurrentMessages();">Refresh</button>
+
 <!-- <button type="button" class="btn btn-default" (click)="init()">init</button>
  -->
 

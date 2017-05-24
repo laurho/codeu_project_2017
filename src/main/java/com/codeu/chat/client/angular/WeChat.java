@@ -41,6 +41,10 @@ import codeu.chat.common.Message;
 // TODO; remove
 import codeu.chat.util.Uuid;
 
+import codeu.chat.util.RemoteAddress;
+import codeu.chat.util.connections.ClientConnectionSource;
+import codeu.chat.util.connections.ConnectionSource;
+
 
 /**
  * Root resource (exposed at "wechat" path)
@@ -62,7 +66,8 @@ public final class WeChat {
     private static final int KEY_LENGTH = 256;
 
     // Needs to be instantiated from WebClientMain.java
-    public static ClientContext clientContext;
+    // public static ClientContext clientContext;
+    public static RemoteAddress address;
 
     // TODO: Remove
     // Counter of how many requests have been made overall
@@ -72,6 +77,16 @@ public final class WeChat {
     // Maps Uuid.toString()s to corresponding ConversationSummaries 
     // for easy lookup when selecting a conversation
     private static Map<String, ConversationSummary> allConvosByID = new HashMap<>();
+
+    /* Since we want multiple web pages to be able to be used by different users simultaneously,
+       We will be making a new ClientContext for each Angular client that connects to this client.
+       While it would have been more ideal to create a new java client for each Angular client, 
+       it did not seem possible to do that in a clean manner, specifically since not all of those 
+       Angular clients would be able to use the same port to communicate with the java client, and 
+       so how would we set their ports dynamically?
+    */
+    private static Integer clientContextCounter = 0;
+    private static Map<String, ClientContext> allClientContexts = new HashMap<>();
 
 
 
@@ -83,29 +98,81 @@ public final class WeChat {
      */
     public WeChat(){
         
-        if (this.clientContext == null) {
+        if (this.address == null) {
             System.out.println("ERROR: No clientContext has been instantiated. "
-                + "Please call the 2-argument constructor before any other use "
+                + "Please call the 1-argument constructor before any other use "
                 + "of this class to avoid errors");
         }
 
         // TODO: remove when not needed for debugging
         globalInt = globalInt + 1;
         System.out.println(globalInt);
-        System.out.println(clientContext);
+        // System.out.println(clientContext);
         System.out.println("zero arg constructor called");
     }
 
-    /** Constructor that sets up a static clientContext 
+    /** Constructor that sets up a single static clientContext 
      *  that will be used by any subsequent intantiations or uses of this class
      *  @param controller - a new Controller
      *  @param view - a new View
      */
-    public WeChat(Controller controller, View view) {
-        this.clientContext = new ClientContext(controller, view);
+    // public WeChat(Controller controller, View view) {
+    //     this.clientContext = new ClientContext(controller, view);
+    // }
+
+
+
+    /** Constructor that sets up a static address 
+     *  that will be used by any subsequent intantiations or uses of this class
+     *  @param address - a RemoteAddress
+     */
+    public WeChat(RemoteAddress address) {
+        this.address = address;
     }
 
 
+    
+    @GET
+    @Path("initclientcontext")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String initClientContext() {
+
+        ConnectionSource source = new ClientConnectionSource(address.host, address.port);
+        Controller controller = new Controller(source);
+        View view = new View(source);
+
+        ClientContext newClientContext = new ClientContext(controller, view);
+        
+        // TODO this seems unsafe, because the web client could then just switch their 'clientContextId' and mess with other user accounts
+        // TODO this is not threadsafe
+        clientContextCounter++;
+        String clientContextId = clientContextCounter.toString();
+
+        allClientContexts.put(clientContextId, newClientContext);
+
+        JSONObject obj = new JSONObject();
+        obj.put("clientContextId", clientContextId);
+        System.out.println(obj.toJSONString());
+        return obj.toJSONString();
+    }
+
+
+    private ClientContext getCurrClientContext(String clientContextId) {
+        ClientContext currClientContext = (allClientContexts.containsKey(clientContextId)) ? allClientContexts.get(clientContextId) : null;
+        
+        //// TODO: Remove this once no longer need to debug
+        // for (String pers: allClientContexts.keySet()){
+        //         // String key =name.toString();
+        //         // String value = example.get(name).toString();  
+        //         // System.out.println(key + " " + value); 
+        //     System.out.println(pers + ": " + allClientContexts.get(pers));
+        // }
+        // System.out.println(clientContextId + ": " + currClientContext);
+
+        return currClientContext;
+    }
+
+    
     /**
      * @return true if the chat is still active, false if it is not
      */
@@ -120,12 +187,12 @@ public final class WeChat {
      *
      * @return String that will be returned as a text/plain response.
      */
-    @GET
-    @Path("testtext")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {
-        return "This text is being sent from java backend!";
-    }
+    // @GET
+    // @Path("testtext")
+    // @Produces(MediaType.TEXT_PLAIN)
+    // public String getIt() {
+    //     return "This text is being sent from java backend!";
+    // }
 
 
     /**
@@ -133,13 +200,13 @@ public final class WeChat {
      * 
      * @return String notifying client of completion.
      */
-    @GET
-    @Path("exit")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String exit() {
-        alive = false;
-        return "exiting app";
-    }
+    // @GET
+    // @Path("exit")
+    // @Produces(MediaType.TEXT_PLAIN)
+    // public String exit() {
+    //     alive = false;
+    //     return "exiting app";
+    // }
 
 
 
@@ -167,7 +234,7 @@ public final class WeChat {
 
     /**
      * Creates a new user account
-     * @param jsonAsString - a string in json format with 'username' and 'password' fields 
+     * @param jsonAsString - a string in json format with 'username', 'password', and 'clientContextId' fields 
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     // TODO: catch ParseException
@@ -189,6 +256,10 @@ public final class WeChat {
             String name = (String) jsonObject.get("username");
             String password = (String) jsonObject.get("password");
 
+            // Get current clientContext
+            String clientContextId = (String) jsonObject.get("clientContextId");
+            ClientContext clientContext = getCurrClientContext(clientContextId);
+
             clientContext.user.addUser(name, password);
             
             JSONObject obj = new JSONObject();
@@ -209,7 +280,7 @@ public final class WeChat {
 
     /**
      * Signs into a user account
-     * @param jsonAsString - a string in json format with 'username' and 'password' fields 
+     * @param jsonAsString - a string in json format with 'username', 'password', and 'clientContextId' fields
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     // TODO: catch ParseException
@@ -226,6 +297,10 @@ public final class WeChat {
             JSONObject jsonObject = stringToJson(jsonAsString);
             String name = (String) jsonObject.get("username");
             String password = (String) jsonObject.get("password");
+
+            // Get current clientContext
+            String clientContextId = (String) jsonObject.get("clientContextId");
+            ClientContext clientContext = getCurrClientContext(clientContextId);
 
             JSONObject obj = new JSONObject();
             if (clientContext.user.signInUser(name, password)) {
@@ -253,12 +328,19 @@ public final class WeChat {
 
     /**
      * Shows all the availiable users
+     * @param clientContextId - the id of the client's current clientContext
      * @return String such that each user's username is on a new line
      */
-    @GET
+    @POST
     @Path("showallusers")
     @Produces(MediaType.TEXT_PLAIN)
-    public String showAllUsers() {
+    @Consumes(MediaType.TEXT_PLAIN)
+    public String showAllUsers(String clientContextId) {
+
+        // Get current clientContext
+        ClientContext clientContext = getCurrClientContext(clientContextId);
+
+
         StringBuilder toRet = new StringBuilder();
 
         clientContext.user.updateUsers();
@@ -273,21 +355,24 @@ public final class WeChat {
 
 
     /**
-     * 
+     * @param clientContextId - the id of the client's current clientContext
      * @return All the details of all the open conversations as a JSON list 
      * that contains the title, uuid, owner name, and creation date for each chat
      */
     /* TODO: rather than reloading all the conversations every time this is called, 
        might be better to have a method that only sends previously unrequested 
        conversations (to avoid wasted duplicate work) */
-    @GET
+    @POST
     @Path("showallconvos")
     @Produces(MediaType.APPLICATION_JSON)
-    public String showAllConvos() {
+    @Consumes(MediaType.TEXT_PLAIN)
+    public String showAllConvos(String clientContextId) {
+
+        // Get current clientContext
+        ClientContext clientContext = getCurrClientContext(clientContextId);
 
 
         allConvosByID.clear();
-
         
         // Update all conversations
         clientContext.conversation.updateAllConversations(false);
@@ -325,7 +410,9 @@ public final class WeChat {
 
     /**
      * Selects a conversation
-     * @param chosenConvo - the Uuid.toString() of the conversation to select
+     * @param jsonAsString - A JSON object with two fields:
+     *                      chosenConvo - the Uuid.toString() of the conversation to select
+     *                      clientContextId - the id of the client's current clientContext
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     // TODO: might be a bad idea to send the actual uuid to the web client -- perhaps need to change this and showAllConvos slightly?
@@ -333,44 +420,83 @@ public final class WeChat {
     @Path("selectconvo")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    public String selectConvo(String chosenConvo) {
-
+    public String selectConvo(String jsonAsString) {
         System.out.println("inside selectConvo");
 
-        JSONObject obj = new JSONObject();
+        try {
+            JSONObject jsonObject = stringToJson(jsonAsString);
+            String chosenConvo = (String) jsonObject.get("chosenConvo");
+            
+            // Get current clientContext
+            String clientContextId = (String) jsonObject.get("clientContextId");
+            ClientContext clientContext = getCurrClientContext(clientContextId);
 
-        // Update, save previous, and determine the new selection by looking up chosenConvo
-        clientContext.conversation.updateAllConversations(false);
-        final ConversationSummary previous = clientContext.conversation.getCurrent();
-        ConversationSummary newCurrent = (allConvosByID.containsKey(chosenConvo)) ? allConvosByID.get(chosenConvo) : null;
+            System.out.println(clientContextId + ": " + clientContext);
 
-        if (newCurrent != previous && newCurrent != null) {
-            clientContext.conversation.setCurrent(newCurrent);
-            clientContext.conversation.updateAllConversations(true);
+            JSONObject obj = new JSONObject();
 
-            obj.put("message", newCurrent.title + " conversation selected");
+            // Update, save previous, and determine the new selection by looking up chosenConvo
+            clientContext.conversation.updateAllConversations(false);
+            final ConversationSummary previous = clientContext.conversation.getCurrent();
+            ConversationSummary newCurrent = (allConvosByID.containsKey(chosenConvo)) ? allConvosByID.get(chosenConvo) : null;
 
-        } else {
-            obj.put("error", "There was some error in selecting the conversation");
+            if (newCurrent != previous && newCurrent != null) {
+                clientContext.conversation.setCurrent(newCurrent);
+                clientContext.conversation.updateAllConversations(true);
+
+                obj.put("message", newCurrent.title + " conversation selected");
+
+            } else {
+                obj.put("error", "There was some error in selecting the conversation");
+            }
+
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
+
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+
+            JSONObject obj = new JSONObject();
+            obj.put("error", "There was some problem in processing the contents of your request. Try again with different answers, or contact the administrator.");
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
+        
+        // } catch (Exception e){
+
+        //     e.printStackTrace();
+
+        //     JSONObject obj = new JSONObject();
+        //     obj.put("error", "testing");
+        //     System.out.println(obj.toJSONString());
+        //     return obj.toJSONString();
+
         }
 
-        System.out.println(obj.toJSONString());
-        return obj.toJSONString();
     }
 
 
 
 
     /**
+     * @param clientContextId - the id of the client's current clientContext
      * @return JSON list of all the messages of the currently selected conversation
      */
     /* TODO: rather than reloading all the messages every time this is called, 
        might be better to have a method that only sends previously unrequested 
        messages (to avoid wasted duplicate work) */
-    @GET
+    @POST
     @Path("showcurrentmessages")
     @Produces(MediaType.APPLICATION_JSON)
-    public String showCurrentMessages() {
+    @Consumes(MediaType.TEXT_PLAIN)
+    public String showCurrentMessages(String clientContextId) {
+        System.out.println("inside showCurrentMessages");
+
+        // Get current clientContext
+        ClientContext clientContext = getCurrClientContext(clientContextId);
+
+
+        System.out.println(clientContextId + ": " + clientContext);
 
         JSONArray allMsgs = new JSONArray();
 
@@ -411,74 +537,118 @@ public final class WeChat {
 
     /**
      * Sends a message to the currently selected conversation
-     * @param msgToSend - the message text to send
+     * @param jsonAsString - A JSON object with two fields:
+     *                      msgToSend - the message text to send
+     *                      clientContextId - the id of the client's current clientContext
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     @POST
     @Path("sendmsg")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    public String sendMsg(String msgToSend) {
-
+    public String sendMsg(String jsonAsString) {
         System.out.println("inside sendMsg");
 
-        JSONObject obj = new JSONObject();
+        try {
+            JSONObject jsonObject = stringToJson(jsonAsString);
+            String msgToSend = (String) jsonObject.get("msgToSend");
+            
+            // Get current clientContext
+            String clientContextId = (String) jsonObject.get("clientContextId");
+            ClientContext clientContext = getCurrClientContext(clientContextId);
 
-        if (!clientContext.user.hasCurrent()) {
-            // There is no 'current' user
-            obj.put("error", "Not signed in.");
-        } else if (!clientContext.conversation.hasCurrent()) {
-            // There is no 'current' conversation
-            obj.put("error", "No conversation has been selected.");
-        } else {
-            clientContext.message.addMessage(clientContext.user.getCurrent().id,
-                clientContext.conversation.getCurrentId(), msgToSend);
+            JSONObject obj = new JSONObject();
 
-            obj.put("message", "Message sent.");
+            if (!clientContext.user.hasCurrent()) {
+                // There is no 'current' user
+                obj.put("error", "Not signed in.");
+            } else if (!clientContext.conversation.hasCurrent()) {
+                // There is no 'current' conversation
+                obj.put("error", "No conversation has been selected.");
+            } else {
+                clientContext.message.addMessage(clientContext.user.getCurrent().id,
+                    clientContext.conversation.getCurrentId(), msgToSend);
+
+                obj.put("message", "Message sent.");
+            }
+
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+
+            JSONObject obj = new JSONObject();
+            obj.put("error", "There was some problem in processing the contents of your request. Try again with different answers, or contact the administrator.");
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
         }
-
-        System.out.println(obj.toJSONString());
-        return obj.toJSONString();
     }
 
 
     /**
      * Creates a new conversation
-     * @param convoTitle - title of new conversation
+     * @param jsonAsString - A JSON object with two fields:
+     *                      convoTitle - title of new conversation
+     *                      clientContextId - the id of the client's current clientContext
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     @POST
     @Path("createnewconvo")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.TEXT_PLAIN)
-    public String createNewConvo(String convoTitle) {
-
+    public String createNewConvo(String jsonAsString) {
         System.out.println("inside createNewConvo");
+
+
+        try {
+            JSONObject jsonObject = stringToJson(jsonAsString);
+            String convoTitle = (String) jsonObject.get("convoTitle");
+            
+            // Get current clientContext
+            String clientContextId = (String) jsonObject.get("clientContextId");
+            ClientContext clientContext = getCurrClientContext(clientContextId);
+
         
-        JSONObject obj = new JSONObject();
+            JSONObject obj = new JSONObject();
 
-        if (!clientContext.user.hasCurrent()) {
-            // There is no 'current' user
-            obj.put("error", "Not signed in.");
-        } else {
-            clientContext.conversation.startConversation(convoTitle, clientContext.user.getCurrent().id);
-            obj.put("message", "New conversation " + convoTitle + " created!");
+            if (!clientContext.user.hasCurrent()) {
+                // There is no 'current' user
+                obj.put("error", "Not signed in.");
+            } else {
+                clientContext.conversation.startConversation(convoTitle, clientContext.user.getCurrent().id);
+                obj.put("message", "New conversation " + convoTitle + " created!");
+            }
+
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+
+            JSONObject obj = new JSONObject();
+            obj.put("error", "There was some problem in processing the contents of your request. Try again with different answers, or contact the administrator.");
+            System.out.println(obj.toJSONString());
+            return obj.toJSONString();
         }
-
-        System.out.println(obj.toJSONString());
-        return obj.toJSONString();
     }
 
 
     /**
      * Signs out the current user
+     * @param clientContextId - the id of the client's current clientContext
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
-    @GET
+    @POST
     @Path("signoutuser")
     @Produces(MediaType.APPLICATION_JSON)
-    public String signOutUser() {
+    @Consumes(MediaType.TEXT_PLAIN)
+    public String signOutUser(String clientContextId) {
         
+        // Get current clientContext
+        ClientContext clientContext = getCurrClientContext(clientContextId);
+
+
         JSONObject obj = new JSONObject();
 
         if (clientContext.user.signOutUser()) {

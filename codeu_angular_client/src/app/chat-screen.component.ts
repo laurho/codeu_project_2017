@@ -23,20 +23,24 @@ export class ChatScreenComponent {
     private cd: ChangeDetectorRef) {
 
 
-    this.retrieveAllConvos();
+    // this.retrieveAllConvos();
 
-    Observable
-      .interval(1000 * 3)
-      .subscribe(x => {
-        this.retrieveAllConvos();
-    });
+    // Observable
+    //   .interval(1000 * 60)
+    //   .subscribe(x => {
+    //     if(AppSettings.clientContextId != ""){
+    //       this.retrieveAllConvos();
+    //     }
+        
+    // });
 
-    Observable
-      .interval(1000 * 1)
-      .subscribe(x => {
-        this.retrieveAllCurrentMessages();
-    });
-
+    // Observable
+    //   .interval(1000 * 2)
+    //   .subscribe(x => {
+    //     if(AppSettings.clientContextId != ""){
+    //       this.retrieveAllCurrentMessages();
+    //     }
+    // });
 
   }
 
@@ -52,7 +56,7 @@ export class ChatScreenComponent {
   private retrieveAllConvos() {
     
     // Send post request
-    this.http.get(AppSettings.API_ENDPOINT + 'wechat/showallconvos')
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/showallconvos', AppSettings.clientContextId)
              .map(this.extractData)
              .subscribe(data => {
                this.allConvos = data;
@@ -68,11 +72,15 @@ export class ChatScreenComponent {
 
   /* 
    * Selects the current conversation
-   * id - String Uuid of the conversation to select
+   * chosenConvoId - String Uuid of the conversation to select
    */
-  private selectConvo(id: String) {
+  private selectConvo(chosenConvoId: String) {
 
-    this.http.post(AppSettings.API_ENDPOINT + 'wechat/selectconvo', id)
+    let params: any = new Object();
+    params.chosenConvo = chosenConvoId;
+    params.clientContextId = AppSettings.clientContextId;
+
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/selectconvo', JSON.stringify(params))
              .map(this.extractData)
              .subscribe(data => {
                 console.log(data);
@@ -87,7 +95,7 @@ export class ChatScreenComponent {
   private retrieveAllCurrentMessages() {
     
     // Send post request
-    this.http.get(AppSettings.API_ENDPOINT + 'wechat/showcurrentmessages')
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/showcurrentmessages', AppSettings.clientContextId)
              .map(this.extractData)
              .subscribe(data => {
                this.allMsgs = data;
@@ -96,10 +104,14 @@ export class ChatScreenComponent {
   }
 
 
-  private sendMsg(msgContents: String) {
-    console.log(msgContents);
+  private sendMsg(msgToSend: String) {
+    console.log(msgToSend);
 
-    this.http.post(AppSettings.API_ENDPOINT + 'wechat/sendmsg', msgContents)
+    let params: any = new Object();
+    params.msgToSend = msgToSend;
+    params.clientContextId = AppSettings.clientContextId;
+
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/sendmsg', JSON.stringify(params))
              .map(this.extractData)
              .subscribe(data => {
                 console.log(data);
@@ -110,7 +122,11 @@ export class ChatScreenComponent {
   private createNewConvo(convoTitle: String) {
     console.log(convoTitle);
 
-    this.http.post(AppSettings.API_ENDPOINT + 'wechat/createnewconvo', convoTitle)
+    let params: any = new Object();
+    params.convoTitle = convoTitle;
+    params.clientContextId = AppSettings.clientContextId;
+
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/createnewconvo', JSON.stringify(params))
              .map(this.extractData)
              .subscribe(data => {
                 console.log(data);
@@ -171,8 +187,6 @@ export class ChatScreenComponent {
 
 
 
-  // TODO: Remove this when we're done
-  get diagnostic() { return JSON.stringify(this.model); }
 
 
 }
