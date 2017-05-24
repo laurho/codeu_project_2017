@@ -32,9 +32,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-
-
 import codeu.chat.common.User;
+
+// TODO; remove
+import codeu.chat.util.Uuid;
+
 
 /**
  * Root resource (exposed at "wechat" path)
@@ -256,6 +258,73 @@ public final class WeChat {
 
         return toRet.toString();
     }
+
+
+
+    /**
+     * 
+     * @return All the details of all the open conversations as a JSON list 
+     * that contains the title, uuid, owner name, and creation date for each chat
+     */
+    @GET
+    @Path("showallconvos")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String showAllConvos() {
+        
+        // Update all conversations
+        clientContext.conversation.updateAllConversations(false);
+
+        JSONArray allConvos = new JSONArray();
+
+        for (final ConversationSummary conv : clientContext.conversation.getConversationSummaries()) {
+            
+            // Clears and fills the usersById hashmap
+            /* Why does this have to be called separately?! There seems to be 
+               no documentation as to why and is annoying behavior for ClientUser.lookup 
+               to not work without it >_< */
+            clientContext.user.updateUsers();
+            
+            String ownerName = clientContext.user.lookup(conv.owner).name;
+
+            JSONObject jsonConv = new JSONObject();
+            jsonConv.put("title", conv.title);
+            jsonConv.put("id", conv.id.toString());
+            jsonConv.put("owner", ownerName);
+            jsonConv.put("creation", conv.creation.inMs());
+
+            allConvos.add(jsonConv);
+        }
+
+        return allConvos.toJSONString();
+    }
+
+
+
+
+
+
+
+  //   clientContext.conversation.showAllConversations();
+
+
+
+  //   // Populate ListModel - updates display objects.
+  // private void getAllConversations(DefaultListModel<String> convDisplayList) {
+
+  //   clientContext.conversation.updateAllConversations(false);
+  //   convDisplayList.clear();
+
+  //   for (final ConversationSummary conv : clientContext.conversation.getConversationSummaries()) {
+  //     convDisplayList.addElement(conv.title);
+  //   }
+  // }
+
+
+
+
+
+
+
 
 
 

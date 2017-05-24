@@ -15,6 +15,7 @@ import { HeroesComponent } from './heroes.component';
 import { HeroService }         from './hero.service';
 import { DashboardComponent } from './dashboard.component';
 import { LoginFormComponent } from './login-form.component';
+import { ChatScreenComponent } from './chat-screen.component';
 
 import { AppRoutingModule }     from './app-routing.module';
 
@@ -31,7 +32,8 @@ import { AppRoutingModule }     from './app-routing.module';
   	DashboardComponent,
   	HeroDetailComponent,
   	HeroesComponent,
-    LoginFormComponent
+    LoginFormComponent,
+    ChatScreenComponent
   ],
   providers: [
   	HeroService

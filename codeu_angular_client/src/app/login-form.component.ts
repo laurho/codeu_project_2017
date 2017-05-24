@@ -33,7 +33,7 @@ export class LoginFormComponent {
   /* When this is false, the login form is displayed
      When it is true, the user is logged in, and the 
        chat app's contents are displayed */
-  submitted = false;
+  submitted = true;
 
   // Clears the form
   clearForm() {
