@@ -2,6 +2,8 @@ package codeu.chat.client.angular;
 
 
 import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 import codeu.chat.client.ClientContext;
 import codeu.chat.client.Controller;
@@ -33,6 +35,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import codeu.chat.common.User;
+import codeu.chat.common.Message;
+
 
 // TODO; remove
 import codeu.chat.util.Uuid;
@@ -63,6 +67,11 @@ public final class WeChat {
     // TODO: Remove
     // Counter of how many requests have been made overall
     public static int globalInt = 0;
+
+
+    private static Map<String, ConversationSummary> allConvosByID = new HashMap<>();
+
+
 
 
     /** This argument-less constructor will be called everytime an http request 
@@ -270,6 +279,10 @@ public final class WeChat {
     @Path("showallconvos")
     @Produces(MediaType.APPLICATION_JSON)
     public String showAllConvos() {
+
+
+        allConvosByID.clear();
+
         
         // Update all conversations
         clientContext.conversation.updateAllConversations(false);
@@ -278,6 +291,11 @@ public final class WeChat {
 
         for (final ConversationSummary conv : clientContext.conversation.getConversationSummaries()) {
             
+
+            allConvosByID.put(conv.id.toString(), conv);
+
+
+            // TODO: might be able to be moved outside of for loop
             // Clears and fills the usersById hashmap
             /* Why does this have to be called separately?! There seems to be 
                no documentation as to why and is annoying behavior for ClientUser.lookup 
@@ -300,7 +318,182 @@ public final class WeChat {
 
 
 
+    /**
+     * 
+     * 
+     */
+    @POST
+    @Path("selectconvo")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.TEXT_PLAIN)
+    public String selectConvo(String chosenConvo) {
 
+        System.out.println("inside selectConvo");
+
+        // for (String pers: allConvosByID.keySet()){
+        //         // String key =name.toString();
+        //         // String value = example.get(name).toString();  
+        //         // System.out.println(key + " " + value); 
+        //     System.out.println(pers);
+        //     System.out.println(allConvosByID.get(pers).title);
+        // }
+
+
+        
+        clientContext.conversation.updateAllConversations(false);
+        final ConversationSummary previous = clientContext.conversation.getCurrent();
+        
+        ConversationSummary newCurrent = (allConvosByID.containsKey(chosenConvo)) ? allConvosByID.get(chosenConvo) : null;
+
+        if (newCurrent != previous && newCurrent != null) {
+            clientContext.conversation.setCurrent(newCurrent);
+            clientContext.conversation.updateAllConversations(true);
+
+            System.out.println(newCurrent.title + " conversation selected");
+            JSONObject obj = new JSONObject();
+            obj.put("message", newCurrent.title + " conversation selected");
+            return obj.toJSONString();
+        }
+
+        JSONObject obj = new JSONObject();
+        obj.put("error", "There was some error in selecting the conversation");
+        return obj.toJSONString();
+        
+    }
+
+
+
+
+    /**
+     * 
+     * 
+     */
+    @GET
+    @Path("showcurrentmessages")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String showCurrentMessages() {
+
+        if (!clientContext.conversation.hasCurrent()) {
+            System.out.println("ERROR: No conversation selected.");
+
+            JSONObject obj = new JSONObject();
+            obj.put("error", "ERROR: No conversation selected.");
+            return obj.toJSONString();
+
+        } else if (clientContext.message.currentMessageCount() == 0) {
+            System.out.println(" Current Conversation has no messages");
+
+            JSONObject obj = new JSONObject();
+            obj.put("error", "Current Conversation has no messages");
+            return obj.toJSONString();
+
+        } else {
+
+            JSONArray allMsgs = new JSONArray();
+            for (final Message m : clientContext.message.conversationContents) {
+                
+                clientContext.user.updateUsers();
+                String authorName = clientContext.user.lookup(m.author).name;
+                
+                JSONObject jsonMsg = new JSONObject();
+                jsonMsg.put("author", authorName);
+                // jsonMsg.put("id", m.id);
+                jsonMsg.put("content", m.content);
+                jsonMsg.put("creation", m.creation.inMs());
+
+                allMsgs.add(jsonMsg);
+            }
+
+            return allMsgs.toJSONString();
+
+
+        }
+
+    }
+
+
+
+
+// value.id);
+//       Uuid.SERIALIZER.write(out, value.next);
+//       Uuid.SERIALIZER.write(out, value.previous);
+//       Time.SERIALIZER.write(out, value.creation);
+//       Uuid.SERIALIZER.write(out, value.author);
+//       Serializers.STRING.write(out, value.content);
+
+
+
+// public void showAllMessages() {
+//     if (conversationContents.size() == 0) {
+//       System.out.println(" Current Conversation has no messages");
+//     } else {
+//       for (final Message m : conversationContents) {
+//         printMessage(m, userContext);
+//       }
+//     }
+//   }
+
+//  // Print Message.  User context is used to map from author UUID to name.
+//   public static void printMessage(Message m, ClientUser userContext) {
+//     if (m == null) {
+//       System.out.println("Null message.");
+//     } else {
+
+//       // Display author name if available.  Otherwise display the author UUID.
+//       final String authorName = (userContext == null) ? null : userContext.getName(m.author);
+
+//       System.out.format(" Author: %s   Id: %s created: %s\n   Body: %s\n",
+//           (authorName == null) ? m.author : authorName, m.id, m.creation, m.content);
+//     }
+//   }
+
+// usersById.clear();
+//     usersByName = new Store<>(String.CASE_INSENSITIVE_ORDER);
+
+//     for (final User user : view.getUsersExcluding(EMPTY)) {
+//       usersById.put(user.id, user);
+
+
+
+
+//     public void showAllConversations() {
+//     updateAllConversations(false);
+
+//     for (final ConversationSummary c : summariesByUuid.values()) {
+//       printConversation(c, userContext);
+//     }
+//   }
+
+
+//     public void selectConversation(Scanner lineScanner) {
+
+//     clientContext.conversation.updateAllConversations(false);
+//     final int selectionSize = clientContext.conversation.conversationsCount();
+//     System.out.format("Selection contains %d entries.\n", selectionSize);
+
+//     final ConversationSummary previous = clientContext.conversation.getCurrent();
+//     ConversationSummary newCurrent = null;
+
+//     if (selectionSize == 0) {
+//       System.out.println("Nothing to select.");
+//     } else {
+//       final ListNavigator<ConversationSummary> navigator =
+//           new ListNavigator<ConversationSummary>(
+//               clientContext.conversation.getConversationSummaries(),
+//               lineScanner, PAGE_SIZE);
+//       if (navigator.chooseFromList()) {
+//         newCurrent = navigator.getSelectedChoice();
+//         clientContext.message.resetCurrent(newCurrent != previous);
+//         System.out.format("OK. Conversation \"%s\" selected.\n", newCurrent.title);
+//       } else {
+//         System.out.println("OK. Current Conversation is unchanged.");
+//       }
+//     }
+//     if (newCurrent != previous) {
+//       clientContext.conversation.setCurrent(newCurrent);
+//       clientContext.conversation.updateAllConversations(true);
+//     }
+//   }
 
 
 

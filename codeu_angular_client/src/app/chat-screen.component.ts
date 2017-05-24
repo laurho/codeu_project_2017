@@ -6,6 +6,7 @@ import { AppSettings } from './appSettings';
 
 import { Http, Response }          from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/interval';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
@@ -19,7 +20,20 @@ export class ChatScreenComponent {
   // We will need access to these imports in the code
   constructor (
     private http: Http, 
-    private cd: ChangeDetectorRef) {}
+    private cd: ChangeDetectorRef) {
+
+
+    this.retrieveAllConvos();
+
+    Observable
+      .interval(1000 * 30)
+      .subscribe(x => {
+        // console.log("updating things");
+        this.retrieveAllConvos();
+    });
+
+
+  }
 
 
   /* This is tied to the inputs of the form; 
@@ -29,6 +43,13 @@ export class ChatScreenComponent {
 
 
   allConvos : Array<Object> = [];
+
+  allMsgs : Array<Object> = [];
+
+  data : Observable<Array<Object>>;
+
+  
+  
 
 
   /* Retrieves all the joinable conversations
@@ -42,7 +63,7 @@ export class ChatScreenComponent {
                this.allConvos = data;
                this.cd.detectChanges();
 
-               console.log(this.allConvos);
+               // console.log(this.allConvos);
              });
 
     return "convos retrieved";
@@ -57,8 +78,52 @@ export class ChatScreenComponent {
   }
 
 
+  private selectConvo(id: String) {
+    console.log(id);
+
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/selectconvo', id)
+             .map(this.extractData)
+             .subscribe(data => {
+                console.log(data);
+                this.retrieveAllCurrentMessages();
+              });
+  }
 
 
+  private retrieveAllCurrentMessages(): String {
+    
+    // Send post request
+    this.http.get(AppSettings.API_ENDPOINT + 'wechat/showcurrentmessages')
+             .map(this.extractData)
+             .subscribe(data => {
+               this.allMsgs = data;
+               this.cd.detectChanges();
+
+               console.log(this.allMsgs);
+             });
+
+    return "messages retrieved";
+  }
+
+
+
+
+
+  // private init() {
+  //   this.data = this.getlst();
+
+  //   this.data.forEach(
+  //       value => this.allConvos.push(value)
+  //   );
+  // }
+
+
+  // private getlst(): Observable<Array<Object>> {
+    
+  //   // Send post request
+  //   return this.http.get(AppSettings.API_ENDPOINT + 'wechat/showallconvos')
+  //            .map(this.extractData);
+  // }
 
 
 
