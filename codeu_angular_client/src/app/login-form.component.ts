@@ -120,6 +120,33 @@ export class LoginFormComponent {
   }
 
 
+  /* Submits a get request to the server to sign out the current user.
+  */  
+  private signOutUser(): String {
+    
+    // Send get request
+    this.http.get(AppSettings.API_ENDPOINT + 'wechat/signoutuser')
+             .map(this.extractData)
+             .subscribe(data => {
+                if (data.error != undefined) {
+                  // There was some error, so the recieved error message is displayed
+                  this.topErrorMessage = data.error;
+                  this.submitted = false;
+
+                } else {
+                  // Sign out was successful, so we can hide the login page and show the rest of the chat app!
+                  this.topSuccessMessage = data.message;
+                  this.submitted = false;
+                }
+
+                // See explanation provided in 'signUpUser'
+                this.cd.detectChanges();
+              });
+
+    return "user signed out";
+  }
+
+
 
   // TODO: Remove this when we're done
   get diagnostic() { return JSON.stringify(this.model); }

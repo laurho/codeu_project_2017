@@ -1,12 +1,18 @@
 hello :)
 
+<input type="text" id="convotitle" name="convotitle" #convoTitle >
+<button type="button" class="btn btn-default" 
+	(click)="createNewConvo(convoTitle.value); convoTitle.value = '';">Create New Conversation</button>
+
+<br>
+<br>
 <h3> Chats: </h3>
 <div *ngFor="let convo of allConvos" (click)="selectConvo(convo.id)" >{{convo.title}}</div>
 
 <h3> Messages: </h3>
 <div *ngFor="let msg of allMsgs" >{{msg.content}}</div>
 
-<input type="text" id="msg" name="name" #msgContent >
+<input type="text" id="msg" name="msg" #msgContent >
 <button type="button" class="btn btn-default" 
 	(click)="sendMsg(msgContent.value); msgContent.value = '';">Send</button>
 

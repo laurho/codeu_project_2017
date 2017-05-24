@@ -117,6 +117,21 @@ export class ChatScreenComponent {
               });
   }
 
+  private createNewConvo(convoTitle: String) {
+    console.log(convoTitle);
+
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/createnewconvo', convoTitle)
+             .map(this.extractData)
+             .subscribe(data => {
+                console.log(data);
+                this.retrieveAllConvos();
+              });
+  }
+
+
+
+
+
 
   // private init() {
   //   this.data = this.getlst();

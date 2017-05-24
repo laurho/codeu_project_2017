@@ -423,7 +423,7 @@ public final class WeChat {
     public String sendMsg(String msgToSend) {
 
         System.out.println("inside sendMsg");
-        
+
 
         if (!clientContext.user.hasCurrent()) {
             System.out.println("ERROR: Not signed in.");
@@ -445,6 +445,82 @@ public final class WeChat {
 
 
     }
+
+
+    /**
+     * 
+     * 
+     */
+    @POST
+    @Path("createnewconvo")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.TEXT_PLAIN)
+    public String createNewConvo(String convoTitle) {
+
+        System.out.println("inside createNewConvo");
+        
+        if (!clientContext.user.hasCurrent()) {
+            System.out.println("ERROR: Not signed in.");
+        } else {
+            clientContext.conversation.startConversation(convoTitle, clientContext.user.getCurrent().id);
+        
+            JSONObject obj = new JSONObject();
+            obj.put("message", "Sent!");
+            return obj.toJSONString();
+        }
+
+        JSONObject obj = new JSONObject();
+        obj.put("error", "error");
+        return obj.toJSONString();
+
+    }
+
+
+    /**
+     * 
+     */
+    @GET
+    @Path("signoutuser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String signOutUser() {
+        
+        JSONObject obj = new JSONObject();
+        if (clientContext.user.signOutUser()) {
+            // Successfully signed out
+            obj.put("message", "signed out!");
+        } else {
+            System.out.println("Error: sign out failed (not signed in?)");
+            // Error while signing in
+            obj.put("error", "Error: sign out failed (not signed in?)");
+        }
+
+        System.out.println(obj.toJSONString());
+        return obj.toJSONString();
+
+    }
+
+
+
+
+
+// if (!clientContext.user.signOutUser()) {
+// System.out.println("Error: sign out failed (not signed in?)");
+// }
+
+
+// else if (token.equals("sign-out")) {
+
+//       if (!clientContext.user.hasCurrent()) {
+//         System.out.println("ERROR: Not signed in.");
+//       } else {
+//         signOutUser();
+//       }
+
+
+
+
+
+
 
 
 
