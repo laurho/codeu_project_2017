@@ -26,35 +26,30 @@ export class ChatScreenComponent {
     this.retrieveAllConvos();
 
     Observable
-      .interval(1000 * 30)
+      .interval(1000 * 3)
       .subscribe(x => {
-        // console.log("updating things");
         this.retrieveAllConvos();
+    });
+
+    Observable
+      .interval(1000 * 1)
+      .subscribe(x => {
+        this.retrieveAllCurrentMessages();
     });
 
 
   }
 
 
-  /* This is tied to the inputs of the form; 
-     Changing either the form's inputs' text or the fields of 
-       'model' will change the other dynamically */
-  model = new User('', '');
-
-
   allConvos : Array<Object> = [];
 
   allMsgs : Array<Object> = [];
 
-  data : Observable<Array<Object>>;
 
-  
-  
-
-
-  /* Retrieves all the joinable conversations
-  */
-  private retrieveAllConvos(): String {
+  /* Retrieves all the joinable conversations and 
+   * saves the resulting JSON list to allConvos
+   */
+  private retrieveAllConvos() {
     
     // Send post request
     this.http.get(AppSettings.API_ENDPOINT + 'wechat/showallconvos')
@@ -62,24 +57,20 @@ export class ChatScreenComponent {
              .subscribe(data => {
                this.allConvos = data;
                this.cd.detectChanges();
-
-               // console.log(this.allConvos);
              });
-
-    return "convos retrieved";
   }
 
   // Converts the provided response into JSON
   private extractData(res: Response) {
     let body = res.json();
-
-
     return body;
   }
 
-
+  /* 
+   * Selects the current conversation
+   * id - String Uuid of the conversation to select
+   */
   private selectConvo(id: String) {
-    console.log(id);
 
     this.http.post(AppSettings.API_ENDPOINT + 'wechat/selectconvo', id)
              .map(this.extractData)
@@ -90,7 +81,10 @@ export class ChatScreenComponent {
   }
 
 
-  private retrieveAllCurrentMessages(): String {
+  /* 
+   * Retrieves all messages from the current conversation
+   */
+  private retrieveAllCurrentMessages() {
     
     // Send post request
     this.http.get(AppSettings.API_ENDPOINT + 'wechat/showcurrentmessages')
@@ -98,11 +92,7 @@ export class ChatScreenComponent {
              .subscribe(data => {
                this.allMsgs = data;
                this.cd.detectChanges();
-
-               console.log(this.allMsgs);
              });
-
-    return "messages retrieved";
   }
 
 

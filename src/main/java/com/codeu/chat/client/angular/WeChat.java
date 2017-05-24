@@ -69,6 +69,8 @@ public final class WeChat {
     public static int globalInt = 0;
 
 
+    // Maps Uuid.toString()s to corresponding ConversationSummaries 
+    // for easy lookup when selecting a conversation
     private static Map<String, ConversationSummary> allConvosByID = new HashMap<>();
 
 
@@ -96,8 +98,8 @@ public final class WeChat {
 
     /** Constructor that sets up a static clientContext 
      *  that will be used by any subsequent intantiations or uses of this class
-     *  controller - a new Controller
-     *  view - a new View
+     *  @param controller - a new Controller
+     *  @param view - a new View
      */
     public WeChat(Controller controller, View view) {
         this.clientContext = new ClientContext(controller, view);
@@ -105,8 +107,8 @@ public final class WeChat {
 
 
     /**
-    * @return true if the chat is still active, false if it is not
-    */
+     * @return true if the chat is still active, false if it is not
+     */
     public boolean chatActive() {
         return this.alive;
     }
@@ -144,7 +146,7 @@ public final class WeChat {
     /**
      * Parses a string into JSON
      * Currently, assumes that the string is formatted as a JSON would be
-     * jsonAsString - a string in json format to parse
+     * @param jsonAsString - a string in json format to parse
      * @return the JSONObject resulting from parsing jsonAsString
      * @throws ParseException
      */
@@ -165,7 +167,7 @@ public final class WeChat {
 
     /**
      * Creates a new user account
-     * jsonAsString - a string in json format with 'username' and 'password' fields 
+     * @param jsonAsString - a string in json format with 'username' and 'password' fields 
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     // TODO: catch ParseException
@@ -207,7 +209,7 @@ public final class WeChat {
 
     /**
      * Signs into a user account
-     * jsonAsString - a string in json format with 'username' and 'password' fields 
+     * @param jsonAsString - a string in json format with 'username' and 'password' fields 
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     // TODO: catch ParseException
@@ -275,6 +277,9 @@ public final class WeChat {
      * @return All the details of all the open conversations as a JSON list 
      * that contains the title, uuid, owner name, and creation date for each chat
      */
+    /* TODO: rather than reloading all the conversations every time this is called, 
+       might be better to have a method that only sends previously unrequested 
+       conversations (to avoid wasted duplicate work) */
     @GET
     @Path("showallconvos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -289,18 +294,18 @@ public final class WeChat {
 
         JSONArray allConvos = new JSONArray();
 
+
+
+        // Clears and fills the usersById hashmap
+        /* Why does this have to be called separately?! There seems to be 
+           no documentation as to why and is annoying behavior for ClientUser.lookup 
+           to not work without it >_< */
+        clientContext.user.updateUsers();
+
         for (final ConversationSummary conv : clientContext.conversation.getConversationSummaries()) {
             
 
             allConvosByID.put(conv.id.toString(), conv);
-
-
-            // TODO: might be able to be moved outside of for loop
-            // Clears and fills the usersById hashmap
-            /* Why does this have to be called separately?! There seems to be 
-               no documentation as to why and is annoying behavior for ClientUser.lookup 
-               to not work without it >_< */
-            clientContext.user.updateUsers();
             
             String ownerName = clientContext.user.lookup(conv.owner).name;
 
@@ -319,9 +324,11 @@ public final class WeChat {
 
 
     /**
-     * 
-     * 
+     * Selects a conversation
+     * @param chosenConvo - the Uuid.toString() of the conversation to select
+     * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
+    // TODO: might be a bad idea to send the actual uuid to the web client -- perhaps need to change this and showAllConvos slightly?
     @POST
     @Path("selectconvo")
     @Produces(MediaType.APPLICATION_JSON)
@@ -330,91 +337,82 @@ public final class WeChat {
 
         System.out.println("inside selectConvo");
 
-        // for (String pers: allConvosByID.keySet()){
-        //         // String key =name.toString();
-        //         // String value = example.get(name).toString();  
-        //         // System.out.println(key + " " + value); 
-        //     System.out.println(pers);
-        //     System.out.println(allConvosByID.get(pers).title);
-        // }
+        JSONObject obj = new JSONObject();
 
-
-        
+        // Update, save previous, and determine the new selection by looking up chosenConvo
         clientContext.conversation.updateAllConversations(false);
         final ConversationSummary previous = clientContext.conversation.getCurrent();
-        
         ConversationSummary newCurrent = (allConvosByID.containsKey(chosenConvo)) ? allConvosByID.get(chosenConvo) : null;
 
         if (newCurrent != previous && newCurrent != null) {
             clientContext.conversation.setCurrent(newCurrent);
             clientContext.conversation.updateAllConversations(true);
 
-            System.out.println(newCurrent.title + " conversation selected");
-            JSONObject obj = new JSONObject();
             obj.put("message", newCurrent.title + " conversation selected");
-            return obj.toJSONString();
+
+        } else {
+            obj.put("error", "There was some error in selecting the conversation");
         }
 
-        JSONObject obj = new JSONObject();
-        obj.put("error", "There was some error in selecting the conversation");
+        System.out.println(obj.toJSONString());
         return obj.toJSONString();
-        
     }
 
 
 
 
     /**
-     * 
-     * 
+     * @return JSON list of all the messages of the currently selected conversation
      */
+    /* TODO: rather than reloading all the messages every time this is called, 
+       might be better to have a method that only sends previously unrequested 
+       messages (to avoid wasted duplicate work) */
     @GET
     @Path("showcurrentmessages")
     @Produces(MediaType.APPLICATION_JSON)
     public String showCurrentMessages() {
 
+        JSONArray allMsgs = new JSONArray();
+
         if (!clientContext.conversation.hasCurrent()) {
             System.out.println("ERROR: No conversation selected.");
-
-            JSONObject obj = new JSONObject();
-            obj.put("error", "ERROR: No conversation selected.");
-            return obj.toJSONString();
 
         } else if (clientContext.message.currentMessageCount() == 0) {
             System.out.println(" Current Conversation has no messages");
 
-            JSONObject obj = new JSONObject();
-            obj.put("error", "Current Conversation has no messages");
-            return obj.toJSONString();
-
         } else {
 
-            JSONArray allMsgs = new JSONArray();
             for (final Message m : clientContext.message.conversationContents) {
                 
+                // Update users and extract the author's name
                 clientContext.user.updateUsers();
                 String authorName = clientContext.user.lookup(m.author).name;
+
+                // This can be used to check whether the author is the same user or not for the purposes of placement
+                String currUsername = (clientContext.user.hasCurrent()) ? clientContext.user.getCurrent().name : "";
                 
+                // Make message JSON
                 JSONObject jsonMsg = new JSONObject();
                 jsonMsg.put("author", authorName);
+                jsonMsg.put("currUser", currUsername);
                 // jsonMsg.put("id", m.id);
                 jsonMsg.put("content", m.content);
                 jsonMsg.put("creation", m.creation.inMs());
 
+                // Add message to list of messages
                 allMsgs.add(jsonMsg);
             }
-
-            return allMsgs.toJSONString();
-
-
         }
+
+        return allMsgs.toJSONString();
 
     }
 
 
     /**
-     * 
-     * 
+     * Sends a message to the currently selected conversation
+     * @param msgToSend - the message text to send
+     * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     @POST
     @Path("sendmsg")
@@ -424,32 +422,30 @@ public final class WeChat {
 
         System.out.println("inside sendMsg");
 
+        JSONObject obj = new JSONObject();
 
         if (!clientContext.user.hasCurrent()) {
-            System.out.println("ERROR: Not signed in.");
+            // There is no 'current' user
+            obj.put("error", "Not signed in.");
         } else if (!clientContext.conversation.hasCurrent()) {
-            System.out.println("ERROR: No conversation selected.");
+            // There is no 'current' conversation
+            obj.put("error", "No conversation has been selected.");
         } else {
-                clientContext.message.addMessage(clientContext.user.getCurrent().id,
+            clientContext.message.addMessage(clientContext.user.getCurrent().id,
                 clientContext.conversation.getCurrentId(), msgToSend);
 
-                JSONObject obj = new JSONObject();
-                obj.put("message", "Sent!");
-                return obj.toJSONString();
+            obj.put("message", "Message sent.");
         }
 
-        JSONObject obj = new JSONObject();
-        obj.put("error", "error");
+        System.out.println(obj.toJSONString());
         return obj.toJSONString();
-
-
-
     }
 
 
     /**
-     * 
-     * 
+     * Creates a new conversation
+     * @param convoTitle - title of new conversation
+     * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     @POST
     @Path("createnewconvo")
@@ -459,25 +455,24 @@ public final class WeChat {
 
         System.out.println("inside createNewConvo");
         
+        JSONObject obj = new JSONObject();
+
         if (!clientContext.user.hasCurrent()) {
-            System.out.println("ERROR: Not signed in.");
+            // There is no 'current' user
+            obj.put("error", "Not signed in.");
         } else {
             clientContext.conversation.startConversation(convoTitle, clientContext.user.getCurrent().id);
-        
-            JSONObject obj = new JSONObject();
-            obj.put("message", "Sent!");
-            return obj.toJSONString();
+            obj.put("message", "New conversation " + convoTitle + " created!");
         }
 
-        JSONObject obj = new JSONObject();
-        obj.put("error", "error");
+        System.out.println(obj.toJSONString());
         return obj.toJSONString();
-
     }
 
 
     /**
-     * 
+     * Signs out the current user
+     * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
     @GET
     @Path("signoutuser")
@@ -485,13 +480,13 @@ public final class WeChat {
     public String signOutUser() {
         
         JSONObject obj = new JSONObject();
+
         if (clientContext.user.signOutUser()) {
             // Successfully signed out
-            obj.put("message", "signed out!");
+            obj.put("message", "Successfully signed out!");
         } else {
-            System.out.println("Error: sign out failed (not signed in?)");
             // Error while signing in
-            obj.put("error", "Error: sign out failed (not signed in?)");
+            obj.put("error", "Sign out failed... (Perhaps no one was signed in?)");
         }
 
         System.out.println(obj.toJSONString());
@@ -499,6 +494,18 @@ public final class WeChat {
 
     }
 
+
+
+
+
+
+// for (String pers: allConvosByID.keySet()){
+        //         // String key =name.toString();
+        //         // String value = example.get(name).toString();  
+        //         // System.out.println(key + " " + value); 
+        //     System.out.println(pers);
+        //     System.out.println(allConvosByID.get(pers).title);
+        // }
 
 
 
