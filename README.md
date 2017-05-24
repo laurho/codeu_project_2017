@@ -63,6 +63,8 @@ At the time of writing, Ruban is unsure whether other steps need to be followed,
 
 Once it starts, it should automatically direct you to: http://localhost:3000/dashboard
 
+Cool Protip: you can navigate to http://localhost:3001/sync-options to change options regarding 'BrowserSync', which can either sync clicks, scrolls, and submissions across tabs, or not!
+
 Quit with 'control - C' in the terminal
 
 # Potentially Helpful Tutorials
