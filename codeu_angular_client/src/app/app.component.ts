@@ -36,46 +36,46 @@ import 'rxjs/add/operator/map';
        <a routerLink="/dashboard">Dashboard</a>
        <a routerLink="/heroes">Heroes</a>
     </nav>
-    
+    -->
     
 
   	<router-outlet></router-outlet>
-    -->
+    
 
   	`,
   providers: [HeroService],
   styleUrls: ['./app.component.css']
 })
 export class AppComponent  {
-	name = 'Angular';
-	title = 'Tour of Rubans';
-  text1 = '';
-  text = this.getHeroes().subscribe(data => this.text1 = data);;
+	// name = 'Angular';
+	// title = 'Tour of Rubans';
+ //  text1 = '';
+  // text = this.getHeroes().subscribe(data => this.text1 = data);;
 
 
-  constructor (private http: Http) {}
+  // constructor (private http: Http) {}
 
-  getHeroes(): Observable<string> {
-    console.log("function called");
+  // getHeroes(): Observable<string> {
+  //   console.log("function called");
 
-    return this.http.get('http://localhost:8080/myapp/wechat/testtext')
-                    .map(this.extractData);
-                    // .catch(this.handleError);
-  }
-  private extractData(res: Response) {
-    // let body = res.json();
-    // return body.data || { };
+  //   return this.http.get('http://localhost:8080/myapp/wechat/testtext')
+  //                   .map(this.extractData);
+  //                   // .catch(this.handleError);
+  // }
+  // private extractData(res: Response) {
+  //   // let body = res.json();
+  //   // return body.data || { };
 
-    console.log("helloo");
-    console.log(res.text())
-    return res.text();//["hi"];
-  }
+  //   console.log("helloo");
+  //   console.log(res.text())
+  //   return res.text();//["hi"];
+  // }
 
-  private createAccount(){
+  // private createAccount(){
     
-    // console.log(usrnm.value);
-    console.log("create account function called!");
-  }
+  //   // console.log(usrnm.value);
+  //   console.log("create account function called!");
+  // }
 
   // private handleError (error: Response | any) {
   //   // In a real world app, you might use a remote logging infrastructure
