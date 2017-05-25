@@ -26,7 +26,7 @@ Users have 2 options in terms of the clients that will connect to the Java Serve
 
 Instructions for each are below:
 
-##### Building Java Code with Maven
+### Building Java Code with Maven
 Download Maven:
 1. `brew install maven` for Mac, 
 2. `sudo apt-get install maven` for Ubuntu, 
@@ -39,7 +39,7 @@ To build the project, run the following in the terminal:
   mvn package
   ```
 
-##### Building Angular Code
+### Building Angular Code
 1. Download Node.js 6.9.x and npm 3.x.x or newer (https://nodejs.org/en/download/) 
     (Verify which version you have of each by running `node -v` and `npm -v`)
 2. In the terminal, navigate to the home directory of the project (`./codeu_angular_client/`)
@@ -51,7 +51,7 @@ To build the project, run the following in the terminal:
 At the time of writing, Ruban is unsure whether other steps need to be followed, so if that does not work, you can try going here for other things to try before (https://angular.io/docs/ts/latest/cli-quickstart.html)
 
 
-##### Java Server
+### Java Server
 1. Install Maven if not done already.
 2. Build the Java code using Maven if not done already.
 3. To run the server, run the following in the terminal 
@@ -60,7 +60,7 @@ At the time of writing, Ruban is unsure whether other steps need to be followed,
     mvn exec:java -Dexec.args="1 1 2000" -Dexec.mainClass="com.codeu.Main"
     ```
 
-##### Java Web Client
+### Java Web Client
 1. Build the Java code using Maven if not done already.
 2. To run the web client, run the following in the terminal 
 (the arguments are: 'localhost@<Server's Port>'):
@@ -71,7 +71,7 @@ At the time of writing, Ruban is unsure whether other steps need to be followed,
 
 3. Quit with 'control - C' in the terminal when done
 
-##### Angular Web Client
+### Angular Web Client
 1. Install Node.js and npm if not done already.
 2. To run the Angular2 project, run the following in the terminal
     ```
@@ -84,7 +84,7 @@ At the time of writing, Ruban is unsure whether other steps need to be followed,
 4. Quit with 'control - C' in the terminal when done
   
 
-##### Commandline Client
+### Commandline Client
 1. Build the Java code using Maven if not done already.
 2. To run the commandline client, run the following in the terminal
 (the arguments are: `localhost@<Server's Port>`):
