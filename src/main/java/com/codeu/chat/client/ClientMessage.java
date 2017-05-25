@@ -25,6 +25,7 @@ import codeu.chat.common.Message;
 import codeu.chat.util.Logger;
 import codeu.chat.util.Method;
 import codeu.chat.util.Uuid;
+import codeu.chat.util.MorseConverter;
 
 public final class ClientMessage {
 
@@ -136,8 +137,20 @@ public final class ClientMessage {
   // Accept an int for number of messages to attempt to show (1 by default).
   // Negative values go from newest to oldest.
   public void showMessages(int count) {
-    for (final Message m : conversationContents) {
-      printMessage(m, userContext);
+    if(count < conversationContents.size()){
+      //show only the last up to the count
+      int convoSize = conversationContents.size();
+      List<Message> sub = conversationContents.subList(convoSize - count, convoSize);
+      for (final Message m : sub) {
+        printMessage(m, userContext);
+        MorseConverter.morseToSound(m.content);
+      }
+    }else{
+      //print all of the messages
+      for (final Message m : conversationContents) {
+        printMessage(m, userContext);
+        MorseConverter.morseToSound(m.content);
+      }
     }
   }
 

@@ -21,6 +21,7 @@ import codeu.chat.client.Controller;
 import codeu.chat.client.View;
 import codeu.chat.common.ConversationSummary;
 import codeu.chat.util.Logger;
+import codeu.chat.util.MorseConverter;
 
 import java.security.SecureRandom;
 import javax.crypto.SecretKeyFactory;
@@ -163,9 +164,11 @@ public final class Chat {
         if (!tokenScanner.hasNext()) {
           System.out.println("ERROR: Message body not supplied.");
         } else {
+          String body = tokenScanner.nextLine().trim();
+          String morse = MorseConverter.paragraphToMorse(body);
           clientContext.message.addMessage(clientContext.user.getCurrent().id,
               clientContext.conversation.getCurrentId(),
-              tokenScanner.nextLine().trim());
+              morse);
         }
       }
 

@@ -2,7 +2,7 @@ package codeu.chat.util;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -44,19 +44,12 @@ public class MorseConverterTest {
   @Test
   public void testSoundTranslate() {
     String morse = ".–.–– / –//";
-    List<Integer> translate = MorseConverter.morseToSoundTranslate(morse);
-    List<Integer> expected = new ArrayList<>();
-    expected.add(0);
-    expected.add(1);
-    expected.add(0);
-    expected.add(1);
-    expected.add(1);
-    expected.add(2);
-    expected.add(3);
-    expected.add(2);
-    expected.add(1);
-    expected.add(3);
-    expected.add(3);
+    List<Morse> translate = MorseConverter.morseToSoundTranslate(morse);
+
+    List<Morse> expected = Arrays.asList(Morse.SHORTBEEP, Morse.LONGBEEP,
+        Morse.SHORTBEEP, Morse.LONGBEEP, Morse.LONGBEEP, Morse.SHORTPAUSE,
+        Morse.LONGPAUSE, Morse.SHORTPAUSE, Morse.LONGBEEP, Morse.LONGPAUSE,
+        Morse.LONGPAUSE);
     for (int i = 0; i < translate.size(); i++) {
       assertTrue(expected.get(i).equals(translate.get(i)));
     }
