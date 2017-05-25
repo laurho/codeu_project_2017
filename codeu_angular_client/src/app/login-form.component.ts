@@ -21,6 +21,7 @@ export class LoginFormComponent {
     private http: Http, 
     private cd: ChangeDetectorRef) {
     this.initClientContext();
+
   }
 
   // When these are not null, text assigned to them will display at the top of the form
@@ -66,6 +67,11 @@ export class LoginFormComponent {
                 this.cd.detectChanges();
 
                 console.log("attached to clientcontext: " + AppSettings.clientContextId);
+
+
+                // TODO REMOVE (This was for skipping for faster UI adjustments)
+                // this.signInUser();
+
               });
   }
 
@@ -79,10 +85,6 @@ export class LoginFormComponent {
     // Create the object to JSONize and send
     // TODO: this can be replaced by the model for cleaner code
     let param = new User(this.model.username, this.model.password, AppSettings.clientContextId);
-
-
-    console.log(param);
-
 
     // The form could be cleared at this point, but its easier for the user to not to
     // this.clearForm();

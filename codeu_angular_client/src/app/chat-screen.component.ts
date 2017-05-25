@@ -23,24 +23,22 @@ export class ChatScreenComponent {
     private cd: ChangeDetectorRef) {
 
 
-    // this.retrieveAllConvos();
-
-    // Observable
-    //   .interval(1000 * 60)
-    //   .subscribe(x => {
-    //     if(AppSettings.clientContextId != ""){
-    //       this.retrieveAllConvos();
-    //     }
+    Observable
+      .interval(1000 * 60)
+      .subscribe(x => {
+        if (AppSettings.clientContextId != ""){
+          this.retrieveAllConvos();
+        }
         
-    // });
+    });
 
-    // Observable
-    //   .interval(1000 * 2)
-    //   .subscribe(x => {
-    //     if(AppSettings.clientContextId != ""){
-    //       this.retrieveAllCurrentMessages();
-    //     }
-    // });
+    Observable
+      .interval(1000 * 2)
+      .subscribe(x => {
+        if (AppSettings.clientContextId != "" && this.selectedConvo != null){
+          this.retrieveAllCurrentMessages();
+        }
+    });
 
   }
 
@@ -48,6 +46,9 @@ export class ChatScreenComponent {
   allConvos : Array<Object> = [];
 
   allMsgs : Array<Object> = [];
+
+  selectedConvo : String = null;
+  loadingConvo : Boolean = false;
 
 
   /* Retrieves all the joinable conversations and 
@@ -61,6 +62,11 @@ export class ChatScreenComponent {
              .subscribe(data => {
                this.allConvos = data;
                this.cd.detectChanges();
+
+               // TODO REMOVE (This was for skipping for faster UI adjustments)
+               // this.selectConvo('[UUID:1.431149946]');
+
+
              });
   }
 
@@ -76,6 +82,9 @@ export class ChatScreenComponent {
    */
   private selectConvo(chosenConvoId: String) {
 
+    this.selectedConvo = chosenConvoId
+    this.loadingConvo = true;
+
     let params: any = new Object();
     params.chosenConvo = chosenConvoId;
     params.clientContextId = AppSettings.clientContextId;
@@ -85,6 +94,9 @@ export class ChatScreenComponent {
              .subscribe(data => {
                 console.log(data);
                 this.retrieveAllCurrentMessages();
+
+                // TODO REMOVE (This was for skipping for faster UI adjustments)
+                // this.retrieveAllCurrentMessages();
               });
   }
 
@@ -93,12 +105,13 @@ export class ChatScreenComponent {
    * Retrieves all messages from the current conversation
    */
   private retrieveAllCurrentMessages() {
-    
+
     // Send post request
     this.http.post(AppSettings.API_ENDPOINT + 'wechat/showcurrentmessages', AppSettings.clientContextId)
              .map(this.extractData)
              .subscribe(data => {
                this.allMsgs = data;
+               this.loadingConvo = false;
                this.cd.detectChanges();
              });
   }

@@ -1,32 +1,321 @@
-hello :) Please excuse the appearance of this UI for now -- That will be cleaned up soon! <br>
 
-<input type="text" id="convotitle" name="convotitle" #convoTitle >
-<button type="button" class="btn btn-default" 
-	(click)="createNewConvo(convoTitle.value); convoTitle.value = '';">Create New Conversation</button>
 
-<br>
-<br>
-<h3> Chats: </h3>
-<div *ngFor="let convo of allConvos" (click)="selectConvo(convo.id)" >{{convo.title}}</div>
+<div class="leftSide">
 
-<h3> Messages: </h3>
-<div *ngFor="let msg of allMsgs" >
-	<div *ngIf="msg.author == msg.currUser">
-    	{{msg.author}}(You): {{msg.content}} ::: {{msg.currUser}}
+	<button type="button" class="btn btn-default" (click)="retrieveAllConvos(); retrieveAllCurrentMessages();">Refresh</button>
+
+	<h3> Conversations: </h3> 
+	
+	
+	<div class="chatWindow">
+		
+		<div *ngFor="let convo of allConvos" (click)="selectConvo(convo.id)" class="conv" > <!-- adding tabindex="1" allows focus atributes to be set via CSS -->
+		
+			<div class="convTitle"> 
+				{{convo.title}}
+			</div>
+			<div class="convOwner"> 
+				Created by {{convo.owner}}
+			</div>
+
+		</div>
+
 	</div>
-	<div *ngIf="msg.author != msg.currUser">
-		{{msg.author}}: {{msg.content}}
-	</div>
+	<input type="text" id="convotitle" name="convotitle" #convoTitle >
+	<br>
+	<button type="button" class="btn btn-default" (click)="createNewConvo(convoTitle.value); convoTitle.value = '';">Create New Conversation</button>
 </div>
 
-<input type="text" id="msg" name="msg" #msgContent >
-<button type="button" class="btn btn-default" 
-	(click)="sendMsg(msgContent.value); msgContent.value = '';">Send</button>
 
-<button type="button" class="btn btn-default" (click)="retrieveAllConvos(); retrieveAllCurrentMessages();">Refresh</button>
+
+<div class="rightSide">
+	<h3> Messages: </h3>
+	
+	<div class="messageWindow">
+
+		<div *ngIf="selectedConvo == null" class="messageWindowBlurb"> Select a chat and get started with messaging! </div>
+		<div *ngIf="loadingConvo" class="messageWindowBlurb"> Loading... </div>
+		<div *ngIf="selectedConvo != null && !loadingConvo && allMsgs.length == 0" class="messageWindowBlurb"> No messages yet! Send one! </div>
+
+		<div *ngFor="let msg of allMsgs.slice().reverse()" >
+			<div *ngIf="msg.author == msg.currUser" class="messageContainer userMessage">
+		    	
+				<div class="message"> {{msg.content}} </div>
+				<!-- <div class="icon"> {{msg.author.charAt(0)}} </div> -->
+				<div class="author"> {{msg.author}} </div>
+			
+			</div>
+			
+			<div *ngIf="msg.author != msg.currUser" class="messageContainer nonuserMessage">
+				<!-- <div class="icon"> {{msg.author.charAt(0)}} </div> -->
+				<div class="message "> {{msg.content}} </div>
+				<div class="author"> {{msg.author}} </div>
+			</div>
+		</div>
+	</div>
+
+	<input type="text" id="msg" name="msg" #msgContent >
+	<br><br>
+	<button type="button" class="btn btn-default" (click)="sendMsg(msgContent.value); msgContent.value = '';">Send</button>
+
+</div>
+
+
+
+
+
+
+
+<br>
+
+<br>
+<br>
+
+
+
+
+
+
 
 <!-- <button type="button" class="btn btn-default" (click)="init()">init</button>
  -->
 
 
 <!-- <input #term type="text" (keyup)="search(term.value)"> -->
+
+<style>
+
+
+.leftSide {
+	width:30%;
+	/*position:relative;*/
+	float: left;
+	height:85vh;
+}
+
+.leftSide h3 {
+	width: fit-content;
+}
+
+.conv {
+	padding: 15px 15px 15px 15px;  /*top right bottom left*/
+	transition: all 0.3s ease 0s;
+}
+
+.conv:hover {
+	background-color: #F7EDE2;
+}
+
+/*.conv:focus {
+	background-color: #F5CAC3;
+}*/
+
+
+
+.conv:hover .convTitle {
+	color: black;
+}
+
+.convTitle {
+	font-size: 16px;
+	color: grey;
+	/*font-weight: bold;*/
+}
+.convOwner {
+	font-size: 12px;
+	color: #C9C9C9;
+}
+
+
+
+.rightSide {
+	width:60%;
+	/*position:relative;*/
+	float: right;
+	height:85vh;
+}
+
+.chatWindow, .messageWindow {
+	height:70vh;
+	overflow: scroll;
+}
+
+
+/* What this does is set the scrollbar to none, 
+and then manually creates something to look 
+like a scrollbar that will be always visisble!*/
+.chatWindow::-webkit-scrollbar, .messageWindow::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+.chatWindow::-webkit-scrollbar:vertical, .messageWindow::-webkit-scrollbar:vertical {
+    width: 11px;
+}
+
+.chatWindow::-webkit-scrollbar:horizontal, .messageWindow::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+.chatWindow::-webkit-scrollbar-thumb, .messageWindow::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white; /* should match background, can't be transparent */
+    background-color: #C9C9C9;
+}
+
+
+
+
+
+
+
+
+.messageWindow {
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+.messageWindowBlurb {
+	color: #C9C9C9;
+	font-size: 20px;
+	padding-bottom: 30px;
+	text-align: right;
+}
+
+.messageContainer {
+	display: block;
+    clear: both;
+    width: fit-content;
+    height: fit-content;
+    margin: 2px 10px 2px 10px;  /*top right bottom left*/
+}
+
+
+.message {
+	/*display:inline;*/
+	word-wrap: break-word;
+	color: white;
+	font-size: 14px;
+	border-radius: 15px;
+	/*display: table;*/
+	width: fit-content;
+	padding: 4px 15px 5px 15px;  /*top right bottom left*/
+	
+}
+
+
+.author {
+	word-wrap: break-word;
+	color: #C9C9C9;
+	font-size: 10px;
+
+	width: fit-content;
+	height: fit-content;
+	
+}
+
+.userMessage .author {
+	float: right;
+	padding-right: 10px;
+}
+
+.nonuserMessage .author {
+	float: left;
+	padding-left: 10px;
+}
+
+
+
+.userMessage .message {
+	background-color: #F28482;
+}
+
+.userMessage {
+	float: right;
+}
+
+.nonuserMessage .message {
+	background-color: #F6BD60;
+/*	float: left;
+*/	/*left:0;*/
+}
+
+.nonuserMessage {
+	float: left;
+}
+
+
+input {
+	border-radius: 15px;
+	border: 2px solid grey;
+	background-color: transparent;
+
+	padding-left: 15px;
+  	padding-right: 15px;
+
+  	padding-top: 4px;
+  	padding-bottom: 5px;
+
+  	color: grey;
+
+  	transition: all 0.3s ease 0s;
+
+  	width: 100%;
+  	/*text-align: right;*/
+}
+
+
+
+input:focus {
+	border-radius: 15px;
+
+	border: 2px solid grey;
+	color: white;
+	outline: none;
+
+	background-color: grey;
+}
+
+
+button {
+	border-radius: 15px;
+	border: 0px solid grey;
+	background-color: white;
+	color: grey;
+	transition: all 0.3s ease 0s;
+	float: right;
+}
+
+.rightSide input {
+	max-width: 60%;
+	float: right;
+}
+
+
+/*UNUSED & Experimental*/
+.icon {
+	color: white;
+	font-weight:bold;
+	font-size: 20px;
+	display:inline;
+	border-radius: 50%;
+	padding: 2px 8px 3px 8px;  /*top right bottom left*/
+	margin: 0px 7px 0px 7px;  /*top right bottom left*/
+}
+
+.userMessage .icon {
+	background-color: #F28482;
+}
+
+.nonuserMessage .icon {
+	background-color: #F28482;
+}
+
+
+
+
+
+</style>
+
+
+
+

@@ -21,6 +21,7 @@ import 'rxjs/add/operator/map';
     <br><br><br>
     <login-form></login-form>
 
+    <!--
     <br><br><br><br><br><br>
     <h1>{{text1}}</h1>
 
@@ -39,6 +40,7 @@ import 'rxjs/add/operator/map';
     
 
   	<router-outlet></router-outlet>
+    -->
 
   	`,
   providers: [HeroService],
