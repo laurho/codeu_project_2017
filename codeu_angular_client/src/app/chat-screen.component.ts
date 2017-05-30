@@ -28,6 +28,7 @@ export class ChatScreenComponent {
       .subscribe(x => {
         if (AppSettings.clientContextId != ""){
           this.retrieveAllConvos();
+          console.log("convos updating...")
         }
         
     });
@@ -37,6 +38,7 @@ export class ChatScreenComponent {
       .subscribe(x => {
         if (AppSettings.clientContextId != "" && this.selectedConvo != null){
           this.retrieveAllCurrentMessages();
+          console.log("messages updating...")
         }
     });
 

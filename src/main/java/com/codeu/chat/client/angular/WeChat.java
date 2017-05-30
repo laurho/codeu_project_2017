@@ -508,6 +508,8 @@ public final class WeChat {
 
         } else {
 
+            clientContext.message.updateMessages(false);
+
             for (final Message m : clientContext.message.conversationContents) {
                 
                 // Update users and extract the author's name
@@ -530,6 +532,8 @@ public final class WeChat {
             }
         }
 
+
+        System.out.println(allMsgs.toJSONString());
         return allMsgs.toJSONString();
 
     }
