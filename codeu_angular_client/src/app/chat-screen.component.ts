@@ -23,10 +23,15 @@ export class ChatScreenComponent {
     private cd: ChangeDetectorRef) {
 
 
+    /* Call once at start to ensure the conversation options 
+    are loaded by the time the user is logged in */
+    this.retrieveAllConvos();
+
+
     Observable
       .interval(1000 * 60)
       .subscribe(x => {
-        if (AppSettings.clientContextId != ""){
+        if (AppSettings.clientContextId != null){
           this.retrieveAllConvos();
           console.log("convos updating...")
         }
@@ -36,7 +41,7 @@ export class ChatScreenComponent {
     Observable
       .interval(1000 * 2)
       .subscribe(x => {
-        if (AppSettings.clientContextId != "" && this.selectedConvo != null){
+        if (AppSettings.clientContextId != null && this.selectedConvo != null){
           this.retrieveAllCurrentMessages();
           console.log("messages updating...")
         }

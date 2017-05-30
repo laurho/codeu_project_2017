@@ -131,17 +131,21 @@ public final class WeChat {
     }
 
 
+    private ClientContext makeNewClientContext() {
+        ConnectionSource source = new ClientConnectionSource(address.host, address.port);
+        Controller controller = new Controller(source);
+        View view = new View(source);
+
+        return new ClientContext(controller, view);
+    }
+
     
     @GET
     @Path("initclientcontext")
     @Produces(MediaType.APPLICATION_JSON)
     public String initClientContext() {
 
-        ConnectionSource source = new ClientConnectionSource(address.host, address.port);
-        Controller controller = new Controller(source);
-        View view = new View(source);
-
-        ClientContext newClientContext = new ClientContext(controller, view);
+        ClientContext newClientContext = makeNewClientContext();
         
         // TODO this seems unsafe, because the web client could then just switch their 'clientContextId' and mess with other user accounts
         // TODO this is not threadsafe
@@ -369,8 +373,18 @@ public final class WeChat {
     public String showAllConvos(String clientContextId) {
 
         // Get current clientContext
-        ClientContext clientContext = getCurrClientContext(clientContextId);
+        ClientContext clientContext;
 
+        if (! clientContextId.equals("")) {
+            clientContext = getCurrClientContext(clientContextId);
+        } else {
+            /* if clientContextId is null, this was called before 
+            a client context was assigned.
+            Since this will happen only once per use of the angular
+            client, we will for now simply create a temporary 
+            clientcontext that will be used for just this operation. */
+            clientContext = makeNewClientContext();
+        }
 
         allConvosByID.clear();
         
@@ -447,7 +461,9 @@ public final class WeChat {
                 obj.put("message", newCurrent.title + " conversation selected");
 
             } else {
-                obj.put("error", "There was some error in selecting the conversation");
+                obj.put("error", "The current conversation was not changed, " 
+                    + "either because there was an error, or because the " 
+                    + "same conversation was selected!");
             }
 
             System.out.println(obj.toJSONString());
@@ -533,7 +549,6 @@ public final class WeChat {
         }
 
 
-        System.out.println(allMsgs.toJSONString());
         return allMsgs.toJSONString();
 
     }
