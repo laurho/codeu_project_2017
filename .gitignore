@@ -10,6 +10,10 @@
 codeu_angular_client/src/app/*.js
 *.js.map
 
+# Libraries #
+###################
+codeu_angular_client/node_modules/*
+
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
