@@ -7,7 +7,7 @@
 *.exe
 *.o
 *.so
-*.js
+codeu_angular_client/src/app/*.js
 *.js.map
 
 # Packages #
