@@ -33,6 +33,8 @@ export class LoginFormComponent {
        'model' will change the other dynamically */
   model = new User('', '', AppSettings.clientContextId);
 
+  usernameToDisplay = '';
+
   /* When this is false, the login form is displayed
      When it is true, the user is logged in, and the 
        chat app's contents are displayed */
@@ -137,6 +139,7 @@ export class LoginFormComponent {
                 } else {
                   // Sign in was successful, so we can hide the login page and show the rest of the chat app!
                   this.submitted = true;
+                  this.usernameToDisplay = param.username;
                 }
 
                 // See explanation provided in 'signUpUser'

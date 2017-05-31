@@ -1,8 +1,12 @@
 <div class="container">
+
+  <br><br><br>
     
   <div [hidden]="submitted">
 
     <h1>Login</h1>
+    <br>
+    <br>
     <form (ngSubmit)="signInUser(); clearForm(); loginForm.reset()" #loginForm="ngForm">
 
 
@@ -30,7 +34,7 @@
         <input type="password" class="form-control" id="password" required [(ngModel)]="model.password" name="password" #password="ngModel">
 
         <!-- <div [hidden]="model.password == null || model.password.length > 2 || model.password.length == 0"
-             class="alert alert-danger"> Password must be more than 2 characters long </div> -->
+             class="alert alert-danger"> This password seems unsafe. The use of more than 6 characters, numbers, and special characters is reccomended. </div> -->
 
         <div [hidden]="password.valid || password.pristine"
              class="alert alert-danger"> Password is required </div>
@@ -39,10 +43,10 @@
 
 
 
-      TODO: remove this: <br>
+      <!-- TODO: remove this: <br>
       {{model.username}}
       <br>{{model.password == null}}
-      <br> {{diagnostic}}
+      <br> {{diagnostic}} -->
       <br><br>
       
 
@@ -79,6 +83,9 @@
   <div [hidden]="!submitted" >
     
     <div class="pageheader">
+      <br>
+      <h5> Signed in as {{usernameToDisplay}}</h5>
+      
       <button class="btn btn-primary" (click)="signOutUser()">Log Out</button>
       <br>
     </div>
@@ -95,5 +102,38 @@
     right: 0px;
     left: 0px;
     padding: 4px 100px 5px 100px;  /*top right bottom left*/
+    text-align: center;
   }
+
+  .pageheader button {
+    float: right;
+    text-align: center;
+
+    border-radius: 15px;
+    border: 0px solid grey;
+    background-color: white;
+    color: grey;
+    transition: all 0.3s ease 0s;
+
+    padding: 8px 15px 8px 15px;  /*top right bottom left*/
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .pageheader button:hover {
+    background-color: #F7567C;
+    color: white;
+  }
+
+  .pageheader h5 {
+    float: right;
+    text-align: center;
+  }
+
+  button {
+    /*border-radius: 5px;*/
+  }
+
+  
+
 </style>

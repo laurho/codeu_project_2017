@@ -17,32 +17,7 @@ import 'rxjs/add/operator/map';
 
 @Component({
   selector: 'my-app',
-  template: `
-    <br><br><br>
-    <login-form></login-form>
-
-    <!--
-    <br><br><br><br><br><br>
-    <h1>{{text1}}</h1>
-
-    <input #usrnm placeholder="User Name" />
-    <input #pswd placeholder="Password" type="password" />
-    <button type="submit" (click)="createAccount()" >Create Account</button>
-    <br>
-    <br>
-
-
-  	<nav>
-       <a routerLink="/dashboard">Dashboard</a>
-       <a routerLink="/heroes">Heroes</a>
-    </nav>
-    -->
-    
-
-  	<router-outlet></router-outlet>
-    
-
-  	`,
+  template: '<router-outlet></router-outlet>',
   providers: [HeroService],
   styleUrls: ['./app.component.css']
 })
