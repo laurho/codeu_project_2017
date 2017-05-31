@@ -157,8 +157,6 @@ export class ChatScreenComponent {
 
 
 
-
-
   // private init() {
   //   this.data = this.getlst();
 
