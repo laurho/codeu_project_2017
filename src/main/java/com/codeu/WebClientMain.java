@@ -76,15 +76,21 @@ final class WebClientMain {
 
     final RemoteAddress address = RemoteAddress.parse(args[0]);
 
-    final ConnectionSource source = new ClientConnectionSource(address.host, address.port);
-    final Controller controller = new Controller(source);
-    final View view = new View(source);
+    // final ConnectionSource source = new ClientConnectionSource(address.host, address.port);
+    // final Controller controller = new Controller(source);
+    // final View view = new View(source);
 
     LOG.info("Creating client...");
 
-    // This ensures that the correct controller and view are associated 
+    // // This ensures that the correct controller and view are associated 
+    // // with the weChat class in a static way, for the sake of any future instances of the class. 
+    // WeChat weChat = new WeChat(controller, view);
+
+    // This ensures that the correct source is associated 
     // with the weChat class in a static way, for the sake of any future instances of the class. 
-    WeChat weChat = new WeChat(controller, view);
+    WeChat weChat = new WeChat(address);
+    
+
     LOG.info("Created client");
     
 

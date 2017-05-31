@@ -7,8 +7,12 @@
 *.exe
 *.o
 *.so
-*.js
+codeu_angular_client/src/app/*.js
 *.js.map
+
+# Libraries #
+###################
+codeu_angular_client/node_modules/*
 
 # Packages #
 ############

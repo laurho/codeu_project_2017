@@ -19,7 +19,10 @@ export class LoginFormComponent {
   // We will need access to these imports in the code
   constructor (
     private http: Http, 
-    private cd: ChangeDetectorRef) {}
+    private cd: ChangeDetectorRef) {
+    this.initClientContext();
+
+  }
 
   // When these are not null, text assigned to them will display at the top of the form
   topErrorMessage : String = null;
@@ -28,16 +31,22 @@ export class LoginFormComponent {
   /* This is tied to the inputs of the form; 
      Changing either the form's inputs' text or the fields of 
        'model' will change the other dynamically */
-  model = new User('', '');
+  model = new User('', '', AppSettings.clientContextId);
+
+  usernameToDisplay = '';
 
   /* When this is false, the login form is displayed
      When it is true, the user is logged in, and the 
        chat app's contents are displayed */
-  submitted = true;
+  submitted = false;
+
+
+  
+
 
   // Clears the form
   clearForm() {
-    this.model = new User('', '');
+    this.model = new User('', '', AppSettings.clientContextId);
     this.topErrorMessage = null;
     this.topSuccessMessage = null;
   }
@@ -49,6 +58,26 @@ export class LoginFormComponent {
   }
 
 
+
+  private initClientContext() {
+    
+    // Send post request
+    this.http.get(AppSettings.API_ENDPOINT + 'wechat/initclientcontext')
+             .map(this.extractData)
+             .subscribe(data => {
+                AppSettings.clientContextId = data.clientContextId
+                this.cd.detectChanges();
+
+                console.log("attached to clientcontext: " + AppSettings.clientContextId);
+
+
+                // TODO REMOVE (This was for skipping for faster UI adjustments)
+                // this.signInUser();
+
+              });
+  }
+
+
   /* Submits a post request to the server to create a new account.
      Note: it does not actually sign the user in, making it nessesary 
            for the user to sign in afterwards
@@ -57,7 +86,7 @@ export class LoginFormComponent {
     
     // Create the object to JSONize and send
     // TODO: this can be replaced by the model for cleaner code
-    let param = new User(this.model.username, this.model.password);
+    let param = new User(this.model.username, this.model.password, AppSettings.clientContextId);
 
     // The form could be cleared at this point, but its easier for the user to not to
     // this.clearForm();
@@ -93,7 +122,7 @@ export class LoginFormComponent {
     
     // Create the object to JSONize and send
     // TODO: this can be replaced by the model for cleaner code
-    let param = new User(this.model.username, this.model.password);
+    let param = new User(this.model.username, this.model.password, AppSettings.clientContextId);
 
     // Send post request
     this.http.post(AppSettings.API_ENDPOINT + 'wechat/signinuser', JSON.stringify(param))
@@ -110,6 +139,7 @@ export class LoginFormComponent {
                 } else {
                   // Sign in was successful, so we can hide the login page and show the rest of the chat app!
                   this.submitted = true;
+                  this.usernameToDisplay = param.username;
                 }
 
                 // See explanation provided in 'signUpUser'
@@ -125,7 +155,7 @@ export class LoginFormComponent {
   private signOutUser(): String {
     
     // Send get request
-    this.http.get(AppSettings.API_ENDPOINT + 'wechat/signoutuser')
+    this.http.post(AppSettings.API_ENDPOINT + 'wechat/signoutuser', AppSettings.clientContextId)
              .map(this.extractData)
              .subscribe(data => {
                 if (data.error != undefined) {
