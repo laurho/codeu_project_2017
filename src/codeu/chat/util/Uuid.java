@@ -163,7 +163,6 @@ public final class Uuid {
     return hash;
   }
 
-
   //representation of Uuid for database storage
   public String toDataString() {
     final StringBuilder build = new StringBuilder();
@@ -171,15 +170,14 @@ public final class Uuid {
     return build.substring(1);
   }
 
-
   // Compute human-readable representation for Uuids
   // Use long internally to avoid negative integers.
   private static String toString(Uuid id) {
     final StringBuilder build = new StringBuilder();
     buildString(id, build);
-    return build.substring(1);  // index of 1 to skip initial '.'
-  }
-
+    return String.format("[UUID:%s]", build.substring(1));  // index of 1 to skip initial '.'
+  
+}
   private static void buildString(Uuid current, StringBuilder build) {
     final long mask = (1L << 32) - 1;  // removes sign extension
     if (current != null) {
@@ -199,15 +197,11 @@ public final class Uuid {
 
     final long id = Long.parseLong(tokens[index]);
 
-<<<<<<< HEAD
-=======
     if ((id >> 32) != 0) {
       throw new IOException(String.format(
           "ID value '%s' is too large to be an unsigned 32 bit integer",
           tokens[index]));
     }
-
->>>>>>> google/summer-2017
     final Uuid link = new Uuid(root, (int)(id & 0xFFFFFFFF));
 
     final int nextIndex = index + 1;

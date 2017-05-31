@@ -4,6 +4,7 @@ package codeu.chat.server;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.DriverManager;
 
 import java.util.Collection;
@@ -21,6 +22,7 @@ public final class MessageDatabase {
 
 	private Connection conn;
 	private Statement stmt;
+	private PreparedStatement pstmt;
 
 	public MessageDatabase() {
 		try {
@@ -40,10 +42,12 @@ public final class MessageDatabase {
 	public void createUserTable() {
 		try {
 			stmt = conn.createStatement();
-			String sql = "CREATE TABLE IF NOT EXISTS USERS " + 
+			String sql = "CREATE TABLE IF NOT EXISTS USERS "  + 
 						 "(ID            TEXT      NOT NULL," + 
-						 " NAME          TEXT                  NOT NULL," + 
-						 " CREATIONTIME  INTEGER            NOT NULL)";
+						 " NAME          TEXT      NOT NULL," + 
+						 " SALT          BLOB      NOT NULL," + 
+						 " HASHPASS      BLOB      NOT NULL," +
+						 " CREATIONTIME  INTEGER   NOT NULL)";
 			stmt.executeUpdate(sql);
 			stmt.close();
 		}
@@ -53,13 +57,18 @@ public final class MessageDatabase {
     	}
 	}
 
-	public void insertUserTable(String id, String name, Long time) {
-		try {
-			stmt = conn.createStatement();
-			String sql = "INSERT INTO USERS (ID,NAME,CREATIONTIME) " + 
-						 "VALUES ( '" + id + "' , '" + name + "' , '" + time + "');" ;
-			stmt.executeUpdate(sql);
-			stmt.close();
+	public void insertUser(String id, String name, byte[] salt, byte[] hashedpass, Long time) {
+		String sql = "INSERT INTO USERS (ID, NAME, SALT, HASHPASS, CREATIONTIME) " + 
+					 "VALUES (?, ?, ?, ?, ?);";
+		try {		
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			pstmt.setString(2, name);
+			pstmt.setBytes(3, salt);
+			pstmt.setBytes(4, hashedpass);
+			pstmt.setLong(5, time);
+			pstmt.executeUpdate();
+			pstmt.close();
 		}
 		catch (Exception e) {
 			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -87,9 +96,14 @@ public final class MessageDatabase {
 	public void insertConversationTable(String id, String title, String ownerID, Long time) {
 		try {
 			String sql = "INSERT INTO CONVERSATION (ID, TITLE, OWNER, CREATIONTIME)" + 
-						 "VALUES ( '" + id + "' , '" + title + "' , '" + ownerID + "' , '" + time + "');" ;
-			stmt.executeUpdate(sql);
-			stmt.close();
+						 "VALUES (?, ?, ?, ?);";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			pstmt.setString(2, title);
+			pstmt.setString(3, ownerID);
+			pstmt.setLong(4, time);
+			pstmt.executeUpdate();
+			pstmt.close();
 		}
 		catch (Exception e) {
 			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
@@ -118,10 +132,15 @@ public final class MessageDatabase {
 	public void insertMessageTable(String id, String author, String convo, String body, Long time) {
 		try {
 			String sql = "INSERT INTO MESSAGE (ID, AUTHOR, CONVERSATION, BODY, CREATIONTIME)" + 
-						"VALUES ( '" + id + "','" + author + "','" + 
-						convo + "','" + body + "','" + time + "');" ; 
-			stmt.executeUpdate(sql);
-			stmt.close();
+						"VALUES (?, ?, ?, ?, ?);" ; 
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			pstmt.setString(2, author);
+			pstmt.setString(3, convo);
+			pstmt.setString(4, body);
+			pstmt.setLong(5, time);
+			pstmt.executeUpdate();
+			pstmt.close();
 		}
 		catch (Exception e) {
 			System.err.println( e.getClass().getName() + ": " + e.getMessage() );

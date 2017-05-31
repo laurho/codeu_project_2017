@@ -30,9 +30,11 @@ private MessageDatabase msgData;
 			while (rs.next() ) {
 				Uuid id = Uuid.fromString(rs.getString("id"));
 				String name = rs.getString("name");
+				byte[] salt = rs.getBytes("salt");
+				byte[] hashpass = rs.getBytes("hashpass");
 				Time time = Time.fromMs(rs.getLong("creationtime"));
 
-				controller.newUser(id, name, time);
+				controller.loadUser(id, name, salt, hashpass, time);
 			}
 			rs.close();
 			stmt.close();
@@ -41,8 +43,7 @@ private MessageDatabase msgData;
       		System.err.println( e.getClass().getName() + ": " + e.getMessage() );
       		System.exit(0);
    		}
-	}
-
+   	}
 	public void retrieveConversation(Controller controller) {
 		try {
 			Statement stmt = msgData.getConnection().createStatement();
