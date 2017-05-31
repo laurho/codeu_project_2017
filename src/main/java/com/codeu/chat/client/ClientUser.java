@@ -81,7 +81,29 @@ public final class ClientUser {
     final User prev = current;
     if (parsedInput[0] != null) {
       final User newCurrent = usersByName.first(parsedInput[0]);
+      if (newCurrent == null) {
+        return false;
+      }
       boolean validPassword = PasswordGenerator.validatePassword(parsedInput[1], newCurrent.salt,
+      newCurrent.password);
+      if (validPassword && newCurrent != null) {
+        current = newCurrent;
+      }
+    }
+    return (prev != current);
+  }
+
+  // a version of the above with two inputs
+  public boolean signInUser(String name, String password) {
+    updateUsers();
+
+    final User prev = current;
+    if (name != null) {
+      final User newCurrent = usersByName.first(name);
+      if (newCurrent == null) {
+        return false;
+      }
+      boolean validPassword = PasswordGenerator.validatePassword(password, newCurrent.salt,
       newCurrent.password);
       if (validPassword && newCurrent != null) {
         current = newCurrent;

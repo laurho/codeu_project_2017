@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Compiled source #
 ###################
 *.com
@@ -6,6 +7,12 @@
 *.exe
 *.o
 *.so
+codeu_angular_client/src/app/*.js
+*.js.map
+
+# Libraries #
+###################
+codeu_angular_client/node_modules/*
 
 # Packages #
 ############
@@ -42,3 +49,7 @@ Thumbs.db
 .settings
 .project
 .classpath
+=======
+bin/
+*.log
+>>>>>>> google/summer-2017

@@ -3,7 +3,7 @@ package com.codeu;
 import java.io.IOException;
 import java.util.Scanner;
 
-import codeu.chat.client.angular.WebChat;
+import codeu.chat.client.angular.WeChat;
 import codeu.chat.client.Controller;
 import codeu.chat.client.View;
 import codeu.chat.util.Logger;
@@ -48,7 +48,7 @@ final class WebClientMain {
   public static HttpServer startServer() {
     // create a resource config that scans for JAX-RS resources and providers
     // in this com.codu package
-    final ResourceConfig rc = new ResourceConfig().packages("com.codeu");
+    final ResourceConfig rc = new ResourceConfig().packages("codeu");
 
     // this line allows programs running on other ports to read what is 
     // being sent from here (not good in the real world for cyber safety
@@ -74,43 +74,35 @@ final class WebClientMain {
 
     LOG.info("Starting chat client...");
 
-    // final RemoteAddress address = RemoteAddress.parse(args[0]);
+    final RemoteAddress address = RemoteAddress.parse(args[0]);
 
     // final ConnectionSource source = new ClientConnectionSource(address.host, address.port);
     // final Controller controller = new Controller(source);
     // final View view = new View(source);
 
-    // LOG.info("Creating client...");
-    // final WebChat chat = new WebChat(controller, view);
+    LOG.info("Creating client...");
 
-    // LOG.info("Created client");
+    // // This ensures that the correct controller and view are associated 
+    // // with the weChat class in a static way, for the sake of any future instances of the class. 
+    // WeChat weChat = new WeChat(controller, view);
 
-    // final Scanner input = new Scanner(System.in);
+    // This ensures that the correct source is associated 
+    // with the weChat class in a static way, for the sake of any future instances of the class. 
+    WeChat weChat = new WeChat(address);
+    
 
-
-
+    LOG.info("Created client");
+    
 
     // Starting server that can be accessed through get and post requests by the web client
     final HttpServer webserver = startServer();
     System.out.println(String.format("Jersey app started with WADL available at "
             + "%sapplication.wadl\n", BASE_URI));
-    // Server is not properly closed for now only
-    // System.in.read();
-    // webserver.stop();
+ 
+    // Keep running
+    // while(weChat.chatActive()){
 
-
-
-    while(true){
-      
-    }
-
-
-
-    // while (chat.handleCommand(input)) {
-    //   // everything is done in "run"
     // }
-
-    // input.close();
 
     // LOG.info("chat client has exited.");
   }

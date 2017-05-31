@@ -42,7 +42,7 @@ public final class ClientMessage {
   private final Map<Uuid, Message> messageByUuid = new HashMap<>();
 
   private Conversation conversationHead;
-  private final List<Message> conversationContents = new ArrayList<>();
+  public final List<Message> conversationContents = new ArrayList<>();
 
   private final ClientUser userContext;
   private final ClientConversation conversationContext;
