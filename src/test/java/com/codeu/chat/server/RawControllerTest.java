@@ -17,6 +17,8 @@ package codeu.chat.server;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.After;
+import java.io.File;
 
 import codeu.chat.common.Conversation;
 import codeu.chat.common.Message;
@@ -38,7 +40,6 @@ public final class RawControllerTest {
   public void doBefore() {
     model = new Model();
     controller = new Controller(Uuid.NULL, model);
-
     userId = new Uuid(1);
     conversationId = new Uuid(2);
     messageId = new Uuid(3);
@@ -121,5 +122,10 @@ public final class RawControllerTest {
     assertTrue(
         "Check that the message has the correct id",
         Uuid.equals(message.id, messageId));
+  }
+
+  @After
+  public void doAfter() {
+    controller.deleteEverything();
   }
 }

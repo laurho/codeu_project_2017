@@ -24,6 +24,7 @@ public final class MessageDatabase {
 	private Statement stmt;
 	private PreparedStatement pstmt;
 
+
 	public MessageDatabase() {
 		try {
 			Class.forName("org.sqlite.JDBC");
@@ -38,6 +39,16 @@ public final class MessageDatabase {
 	public Connection getConnection() {
 		return conn;
 	}	
+
+	public void closeConnection() {
+		try { 
+			conn.close();
+		}
+		catch (Exception e) {
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+    		System.exit(0);
+		}
+	}
 
 	public void createUserTable() {
 		try {
@@ -147,5 +158,45 @@ public final class MessageDatabase {
       		System.exit(0);			
 		}						
 	}
+
+	public void deleteUsers() {
+		try {
+			stmt = conn.createStatement();
+			String sql = "DROP TABLE IF EXISTS 'users'";
+			stmt.executeUpdate(sql);
+			stmt.close();
+		}
+		catch (Exception e) {
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+    		System.exit(0);
+    	}
+	}
+	
+	public void deleteConversation() {
+		try {
+			stmt = conn.createStatement();
+			String sql = "DROP TABLE IF EXISTS 'conversation'";
+			stmt.executeUpdate(sql);
+			stmt.close();
+		}
+		catch (Exception e) {
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+    		System.exit(0);
+    	}
+	}
+
+	public void deleteMessage() {
+		try {
+			stmt = conn.createStatement();
+			String sql = "DROP TABLE IF EXISTS 'message'";
+			stmt.executeUpdate(sql);
+			stmt.close();
+		}
+		catch (Exception e) {
+			System.err.println( e.getClass().getName() + ": " + e.getMessage() );
+    		System.exit(0);
+    	}
+	}
+
 
 }

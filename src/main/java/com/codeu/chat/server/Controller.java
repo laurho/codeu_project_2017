@@ -15,6 +15,7 @@
 package codeu.chat.server;
 
 import java.util.Collection;
+import java.io.File;
 
 import codeu.chat.common.BasicController;
 import codeu.chat.common.Conversation;
@@ -128,14 +129,14 @@ public final class Controller implements RawController, BasicController {
   @Override
   public User newUser(Uuid id, String name, String password, Time creationTime) {
 
-      byte[] salt = PasswordGenerator.getSalt();
-      byte[] hashedPassword = PasswordGenerator.hash(password.toCharArray(), salt);
+    byte[] salt = PasswordGenerator.getSalt();
+    byte[] hashedPassword = PasswordGenerator.hash(password.toCharArray(), salt);
 
-      if (isIdFree(id)) {
+    if (isIdFree(id)) {
       msgData.insertUser(id.toDataString(), name, salt, hashedPassword, creationTime.inMs());
-      }
+    }
 
-      return loadUser(id, name, salt, hashedPassword, creationTime);
+    return loadUser(id, name, salt, hashedPassword, creationTime);
   }
 
   public User loadUser(Uuid id, String name, byte[] salt, byte[] hashedPassword, Time creationTime) {
@@ -203,6 +204,13 @@ public final class Controller implements RawController, BasicController {
     return model.messageById().first(id) != null ||
            model.conversationById().first(id) != null ||
            model.userById().first(id) != null;
+  }
+
+  public void deleteEverything() {
+    msgData.deleteUsers();
+    msgData.deleteConversation();
+    msgData.deleteMessage();
+    msgData.closeConnection();
   }
 
   private boolean isIdFree(Uuid id) { return !isIdInUse(id); }
