@@ -34,7 +34,7 @@ codeu_angular_client/node_modules/*
 bin/chat_client_log.log
 bin/chat_server_log.log
 *.log.lck
-
+message.db
 # OS generated files #
 ######################
 .DS_Store
