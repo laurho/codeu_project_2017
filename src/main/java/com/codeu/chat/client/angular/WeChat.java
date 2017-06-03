@@ -51,6 +51,8 @@ import codeu.chat.util.connections.ConnectionSource;
  * 
  * Based off of resources given at: 
  * https://jersey.java.net/documentation/latest/getting-started.html#new-from-archetype
+ * 
+ * TODO statements have been left in as signs of potential directions this project would go in the future
  *
  */
 @Path("wechat")
@@ -111,17 +113,6 @@ public final class WeChat {
         System.out.println("zero arg constructor called");
     }
 
-    /** Constructor that sets up a single static clientContext 
-     *  that will be used by any subsequent intantiations or uses of this class
-     *  @param controller - a new Controller
-     *  @param view - a new View
-     */
-    // public WeChat(Controller controller, View view) {
-    //     this.clientContext = new ClientContext(controller, view);
-    // }
-
-
-
     /** Constructor that sets up a static address 
      *  that will be used by any subsequent intantiations or uses of this class
      *  @param address - a RemoteAddress
@@ -139,7 +130,10 @@ public final class WeChat {
         return new ClientContext(controller, view);
     }
 
-    
+    /** 
+     * Creates a new ClientContext and returns an 'id'
+     * @return an 'id' that can be used to refer to the just-generated ClientContext later
+     */
     @GET
     @Path("initclientcontext")
     @Produces(MediaType.APPLICATION_JSON)
@@ -221,7 +215,7 @@ public final class WeChat {
      * @return the JSONObject resulting from parsing jsonAsString
      * @throws ParseException
      */
-    // TODO: Casting is usually bad practice -- look into whether its possible to avoid casting
+    // TODO: Casting is usually not ideal -- look into whether its possible to avoid casting
     private JSONObject stringToJson(String jsonAsString) throws ParseException {
         JSONParser parser = new JSONParser();
 
@@ -241,7 +235,6 @@ public final class WeChat {
      * @param jsonAsString - a string in json format with 'username', 'password', and 'clientContextId' fields 
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
-    // TODO: catch ParseException
     /* TODO: This recieving of String and converting to JSON means that fields 
         with characters like ':','{','}' could cause problems with the parsing 
         -- need to test to see if this is a problem, and if it is, either start 
@@ -287,7 +280,6 @@ public final class WeChat {
      * @param jsonAsString - a string in json format with 'username', 'password', and 'clientContextId' fields
      * @return JSON indicating either sucess (under a 'message' field) or failure (under an 'error' field)
      */
-    // TODO: catch ParseException
     /* TODO: This recieving of String and converting to JSON means that fields 
         with characters like ':','{','}' could cause problems with the parsing 
         -- need to test to see if this is a problem, and if it is, either start 
@@ -386,7 +378,15 @@ public final class WeChat {
             clientContext = makeNewClientContext();
         }
 
-        allConvosByID.clear();
+        /* TODO: Might be cleaner to always clear this, but in the case that the
+           excecution of this method is interupted by the excecution of
+           selectConvo and this IS cleared, runs into problems sometimes
+           because the allConvosById is only partially filled, and so it causes 
+           an error
+           Should be fixed by locking the hashmap here and there
+        */
+        // allConvosByID.clear();
+
         
         // Update all conversations
         clientContext.conversation.updateAllConversations(false);
@@ -465,6 +465,26 @@ public final class WeChat {
                     + "either because there was an error, or because the " 
                     + "same conversation was selected!");
             }
+
+
+
+            // TODO: remove once done debugging
+            System.out.println("DEBUGGING IN SELECTCONVO");
+            
+            for (String pers: allConvosByID.keySet()){
+                System.out.println(pers + ": " + allConvosByID.get(pers));
+            }
+            System.out.println(chosenConvo + ": " + newCurrent);
+
+            if (newCurrent != null) {
+              System.out.println(newCurrent.title);
+            } else {
+              System.out.println(newCurrent);
+            }
+            System.out.println(clientContext.conversation.getCurrent().title);
+
+
+
 
             System.out.println(obj.toJSONString());
             return obj.toJSONString();
