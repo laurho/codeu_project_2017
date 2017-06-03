@@ -165,10 +165,8 @@ public final class Chat {
           System.out.println("ERROR: Message body not supplied.");
         } else {
           String body = tokenScanner.nextLine().trim();
-          String morse = MorseConverter.paragraphToMorse(body);
           clientContext.message.addMessage(clientContext.user.getCurrent().id,
-              clientContext.conversation.getCurrentId(),
-              morse);
+              clientContext.conversation.getCurrentId(), body);
         }
       }
 

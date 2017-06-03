@@ -149,7 +149,8 @@ public final class ClientMessage {
       //print all of the messages
       for (final Message m : conversationContents) {
         printMessage(m, userContext);
-        MorseConverter.morseToSound(m.content);
+        String morse = MorseConverter.paragraphToMorse(m.content);
+        MorseConverter.morseToSound(morse);
       }
     }
   }
