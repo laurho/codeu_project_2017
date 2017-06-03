@@ -70,10 +70,6 @@ export class ChatScreenComponent {
                this.allConvos = data;
                this.cd.detectChanges();
 
-               // TODO REMOVE (This was for skipping for faster UI adjustments)
-               // this.selectConvo('[UUID:1.431149946]');
-
-
              });
   }
 
@@ -102,8 +98,6 @@ export class ChatScreenComponent {
                 console.log(data);
                 this.retrieveAllCurrentMessages();
 
-                // TODO REMOVE (This was for skipping for faster UI adjustments)
-                // this.retrieveAllCurrentMessages();
               });
   }
 
@@ -153,58 +147,6 @@ export class ChatScreenComponent {
                 this.retrieveAllConvos();
               });
   }
-
-
-
-
-  // private init() {
-  //   this.data = this.getlst();
-
-  //   this.data.forEach(
-  //       value => this.allConvos.push(value)
-  //   );
-  // }
-
-
-  // private getlst(): Observable<Array<Object>> {
-    
-  //   // Send post request
-  //   return this.http.get(AppSettings.API_ENDPOINT + 'wechat/showallconvos')
-  //            .map(this.extractData);
-  // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
 
 
 }

@@ -70,10 +70,6 @@ export class LoginFormComponent {
 
                 console.log("attached to clientcontext: " + AppSettings.clientContextId);
 
-
-                // TODO REMOVE (This was for skipping for faster UI adjustments)
-                // this.signInUser();
-
               });
   }
 

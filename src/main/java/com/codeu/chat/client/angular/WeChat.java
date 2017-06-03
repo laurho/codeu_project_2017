@@ -47,6 +47,7 @@ import codeu.chat.util.connections.ConnectionSource;
 
 
 /**
+ * This is the main place of operations for the Java Web Client.
  * Root resource (exposed at "wechat" path)
  * 
  * Based off of resources given at: 
@@ -158,55 +159,10 @@ public final class WeChat {
     private ClientContext getCurrClientContext(String clientContextId) {
         ClientContext currClientContext = (allClientContexts.containsKey(clientContextId)) ? allClientContexts.get(clientContextId) : null;
         
-        //// TODO: Remove this once no longer need to debug
-        // for (String pers: allClientContexts.keySet()){
-        //         // String key =name.toString();
-        //         // String value = example.get(name).toString();  
-        //         // System.out.println(key + " " + value); 
-        //     System.out.println(pers + ": " + allClientContexts.get(pers));
-        // }
-        // System.out.println(clientContextId + ": " + currClientContext);
-
         return currClientContext;
     }
 
     
-    /**
-     * @return true if the chat is still active, false if it is not
-     */
-    public boolean chatActive() {
-        return this.alive;
-    }
-
-
-    /**
-     * Method handling HTTP GET requests. The returned object will be sent
-     * to the client as "text/plain" media type.
-     *
-     * @return String that will be returned as a text/plain response.
-     */
-    // @GET
-    // @Path("testtext")
-    // @Produces(MediaType.TEXT_PLAIN)
-    // public String getIt() {
-    //     return "This text is being sent from java backend!";
-    // }
-
-
-    /**
-     * Method handling HTTP GET request to exit the chat (?).
-     * 
-     * @return String notifying client of completion.
-     */
-    // @GET
-    // @Path("exit")
-    // @Produces(MediaType.TEXT_PLAIN)
-    // public String exit() {
-    //     alive = false;
-    //     return "exiting app";
-    // }
-
-
 
     /**
      * Parses a string into JSON
@@ -466,26 +422,6 @@ public final class WeChat {
                     + "same conversation was selected!");
             }
 
-
-
-            // TODO: remove once done debugging
-            System.out.println("DEBUGGING IN SELECTCONVO");
-            
-            for (String pers: allConvosByID.keySet()){
-                System.out.println(pers + ": " + allConvosByID.get(pers));
-            }
-            System.out.println(chosenConvo + ": " + newCurrent);
-
-            if (newCurrent != null) {
-              System.out.println(newCurrent.title);
-            } else {
-              System.out.println(newCurrent);
-            }
-            System.out.println(clientContext.conversation.getCurrent().title);
-
-
-
-
             System.out.println(obj.toJSONString());
             return obj.toJSONString();
 
@@ -497,15 +433,6 @@ public final class WeChat {
             obj.put("error", "There was some problem in processing the contents of your request. Try again with different answers, or contact the administrator.");
             System.out.println(obj.toJSONString());
             return obj.toJSONString();
-        
-        // } catch (Exception e){
-
-        //     e.printStackTrace();
-
-        //     JSONObject obj = new JSONObject();
-        //     obj.put("error", "testing");
-        //     System.out.println(obj.toJSONString());
-        //     return obj.toJSONString();
 
         }
 
@@ -702,227 +629,6 @@ public final class WeChat {
         return obj.toJSONString();
 
     }
-
-
-
-
-
-
-// for (String pers: allConvosByID.keySet()){
-        //         // String key =name.toString();
-        //         // String value = example.get(name).toString();  
-        //         // System.out.println(key + " " + value); 
-        //     System.out.println(pers);
-        //     System.out.println(allConvosByID.get(pers).title);
-        // }
-
-
-
-
-// if (!clientContext.user.signOutUser()) {
-// System.out.println("Error: sign out failed (not signed in?)");
-// }
-
-
-// else if (token.equals("sign-out")) {
-
-//       if (!clientContext.user.hasCurrent()) {
-//         System.out.println("ERROR: Not signed in.");
-//       } else {
-//         signOutUser();
-//       }
-
-
-
-
-
-
-
-
-
-// } else if (token.equals("m-add")) {
-
-//       if (!clientContext.user.hasCurrent()) {
-//         System.out.println("ERROR: Not signed in.");
-//       } else if (!clientContext.conversation.hasCurrent()) {
-//         System.out.println("ERROR: No conversation selected.");
-//       } else {
-//         if (!tokenScanner.hasNext()) {
-//           System.out.println("ERROR: Message body not supplied.");
-//         } else {
-//           clientContext.message.addMessage(clientContext.user.getCurrent().id,
-//               clientContext.conversation.getCurrentId(),
-//               tokenScanner.nextLine().trim());
-//         }
-//       }
-
-//     }
-
-// value.id);
-//       Uuid.SERIALIZER.write(out, value.next);
-//       Uuid.SERIALIZER.write(out, value.previous);
-//       Time.SERIALIZER.write(out, value.creation);
-//       Uuid.SERIALIZER.write(out, value.author);
-//       Serializers.STRING.write(out, value.content);
-
-
-
-// public void showAllMessages() {
-//     if (conversationContents.size() == 0) {
-//       System.out.println(" Current Conversation has no messages");
-//     } else {
-//       for (final Message m : conversationContents) {
-//         printMessage(m, userContext);
-//       }
-//     }
-//   }
-
-//  // Print Message.  User context is used to map from author UUID to name.
-//   public static void printMessage(Message m, ClientUser userContext) {
-//     if (m == null) {
-//       System.out.println("Null message.");
-//     } else {
-
-//       // Display author name if available.  Otherwise display the author UUID.
-//       final String authorName = (userContext == null) ? null : userContext.getName(m.author);
-
-//       System.out.format(" Author: %s   Id: %s created: %s\n   Body: %s\n",
-//           (authorName == null) ? m.author : authorName, m.id, m.creation, m.content);
-//     }
-//   }
-
-// usersById.clear();
-//     usersByName = new Store<>(String.CASE_INSENSITIVE_ORDER);
-
-//     for (final User user : view.getUsersExcluding(EMPTY)) {
-//       usersById.put(user.id, user);
-
-
-
-
-//     public void showAllConversations() {
-//     updateAllConversations(false);
-
-//     for (final ConversationSummary c : summariesByUuid.values()) {
-//       printConversation(c, userContext);
-//     }
-//   }
-
-
-//     public void selectConversation(Scanner lineScanner) {
-
-//     clientContext.conversation.updateAllConversations(false);
-//     final int selectionSize = clientContext.conversation.conversationsCount();
-//     System.out.format("Selection contains %d entries.\n", selectionSize);
-
-//     final ConversationSummary previous = clientContext.conversation.getCurrent();
-//     ConversationSummary newCurrent = null;
-
-//     if (selectionSize == 0) {
-//       System.out.println("Nothing to select.");
-//     } else {
-//       final ListNavigator<ConversationSummary> navigator =
-//           new ListNavigator<ConversationSummary>(
-//               clientContext.conversation.getConversationSummaries(),
-//               lineScanner, PAGE_SIZE);
-//       if (navigator.chooseFromList()) {
-//         newCurrent = navigator.getSelectedChoice();
-//         clientContext.message.resetCurrent(newCurrent != previous);
-//         System.out.format("OK. Conversation \"%s\" selected.\n", newCurrent.title);
-//       } else {
-//         System.out.println("OK. Current Conversation is unchanged.");
-//       }
-//     }
-//     if (newCurrent != previous) {
-//       clientContext.conversation.setCurrent(newCurrent);
-//       clientContext.conversation.updateAllConversations(true);
-//     }
-//   }
-
-
-
-  //   clientContext.conversation.showAllConversations();
-
-
-
-  //   // Populate ListModel - updates display objects.
-  // private void getAllConversations(DefaultListModel<String> convDisplayList) {
-
-  //   clientContext.conversation.updateAllConversations(false);
-  //   convDisplayList.clear();
-
-  //   for (final ConversationSummary conv : clientContext.conversation.getConversationSummaries()) {
-  //     convDisplayList.addElement(conv.title);
-  //   }
-  // }
-
-
-
-
-
-
-
-
-
-
-
-    // //// TODO: remove example of simple json syntax after done
-    // JSONObject obj = new JSONObject();
-    // obj.put("name", "mkyong.com");
-    // obj.put("age", new Integer(100));
-
-    // JSONArray list = new JSONArray();
-    // list.add("msg 1");
-    // list.add("msg 2");
-    // list.add("msg 3");
-
-    // obj.put("messages", list);
-
-    // obj.toJSONString();
-
-
-    // JSONParser parser = new JSONParser();
-
-    //     try {
-
-    //         Object obj = parser.parse(new FileReader("f:\\test.json"));
-
-    //         JSONObject jsonObject = (JSONObject) obj;
-    //         System.out.println(jsonObject);
-
-    //         String name = (String) jsonObject.get("name");
-    //         System.out.println(name);
-
-    //         long age = (Long) jsonObject.get("age");
-    //         System.out.println(age);
-
-    //         // loop array
-    //         JSONArray msg = (JSONArray) jsonObject.get("messages");
-    //         Iterator<String> iterator = msg.iterator();
-    //         while (iterator.hasNext()) {
-    //             System.out.println(iterator.next());
-    //         }
-
-    //     } catch (FileNotFoundException e) {
-    //         e.printStackTrace();
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     } catch (ParseException e) {
-    //         e.printStackTrace();
-    //     }
-
-
-
-
-
-
-    
-
-
-
-
-
-
 
 
 

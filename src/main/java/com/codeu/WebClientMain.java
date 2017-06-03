@@ -21,7 +21,7 @@ import java.net.URI;
 
 
 /**
- * Main class for the web client.
+ * Main class for the Java Web Client.
  * 
  * Much of the code here is copied directly from what was once codeu.chat.ClientMain,
  * with some other changes.
@@ -76,15 +76,7 @@ final class WebClientMain {
 
     final RemoteAddress address = RemoteAddress.parse(args[0]);
 
-    // final ConnectionSource source = new ClientConnectionSource(address.host, address.port);
-    // final Controller controller = new Controller(source);
-    // final View view = new View(source);
-
     LOG.info("Creating client...");
-
-    // // This ensures that the correct controller and view are associated 
-    // // with the weChat class in a static way, for the sake of any future instances of the class. 
-    // WeChat weChat = new WeChat(controller, view);
 
     // This ensures that the correct source is associated 
     // with the weChat class in a static way, for the sake of any future instances of the class. 
@@ -99,10 +91,6 @@ final class WebClientMain {
     System.out.println(String.format("Jersey app started with WADL available at "
             + "%sapplication.wadl\n", BASE_URI));
  
-    // Keep running
-    // while(weChat.chatActive()){
-
-    // }
 
     // LOG.info("chat client has exited.");
   }
