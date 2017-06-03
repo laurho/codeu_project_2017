@@ -33,6 +33,10 @@ Users have 2 options in terms of the clients that will connect to the Java Serve
 1. Running `Java Web Client` and `Angular Web Client` together concurrently
 2. Running `Java Commandline Client`
 
+Multiple users can connect to the same instance of a running `Java Server`:
+1. On the web client side, all a user has to do is to navigate to the same url in a new tab or window in the browser to connect as a new user to the same server.
+2. On the commandline side, the user has to run another client in another terminal.
+
 Instructions for each are below:
 
 ### Setting up Maven
@@ -97,7 +101,7 @@ The arguments are `<Team Id>` , `<Team Secret>` , `<Port>` , `<Relay Address (op
     ```
 3. Once it starts, it should automatically direct you to: http://localhost:3000/ or something analogous if port 3000 is busy.
 
-4. Navigate your browser to http://localhost:3001/sync-options and click on `disable all`. This will make it possible for you to open the same link of step 3 up in another tab or window and be able to sign in and chat as another user!
+4. Navigate your browser to http://localhost:3001/sync-options (or 1 plus the port the angular service opens up at if its not 3000) and click on `disable all`. This will make it possible for you to open the same link of step 3 up in another tab or window and be able to sign in and chat as another user!
 
 
 
