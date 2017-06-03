@@ -4,7 +4,7 @@
 # Overview
   This chat application was made as part of the Google CodeU 2017 Spring group. The chat has two options of viewing: commandline and GUI using Angular. Due to the GUI not being in Java, the persistance of user account, conversations, and messages as well as Morse Code translation is not implemented in it. The CommandLine option lacks the GUI but contains all of the other features.
 
-  The persistance of information is stored within message.db. Password security requires the form of 'u-add <username>,<password>` if you were to make a new account. All messages are stored as they were typed, but if you would like the Morse Code translation, type the command `m-show <count>`, where count is the number of messages starting from the most recently sent. This decision was made since Morse Code takes time to listen to and so a user does not have to sit and wait for all messages to be translated with a command such as `m-list-all`.
+  The persistance of information is stored within message.db. Password security requires the form of `u-add <username>,<password>` if you were to make a new account. All messages are stored as they were typed, but if you would like the Morse Code translation, type the command `m-show <count>`, where count is the number of messages starting from the most recently sent. This decision was made since Morse Code takes time to listen to and so a user does not have to sit and wait for all messages to be translated with a command such as `m-list-all`. You may choose how many messages you would like to hear translated.
 
 # Technologies Used
 Jersey Framework (https://jersey.java.net/) 
